@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template
-
+from crb.admin_routes import admin_bp
 from crb.db import close_db, init_db
 from crb.seed import seed
 
@@ -35,5 +35,6 @@ def create_app(test_config=None):
     # SLOT-SEARCH
 
     # SLOT-ADMIN
+    app.register_blueprint(admin_bp)
 
     return app

@@ -1,0 +1,51 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Room Administration</h1>
+
+<p><a href="{{ url_for('admin.new_room') }}">Add New Room</a></p>
+<p><a href="{{ url_for('admin.blocks') }}">Manage Maintenance Blocks</a></p>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <p class="{{ category }}">{{ message }}</p>
+  {% endfor %}
+{% endwith %}
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Location</th>
+      <th>Capacity</th>
+      <th>Equipment</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for room in rooms %}
+    <tr>
+      <td>{{ room.id }}</td>
+      <td>{{ room.name }}</td>
+      <td>{{ room.location }}</td>
+      <td>{{ room.capacity }}</td>
+      <td>{{ room.equipment }}</td>
+      <td>{{ "Active" if room.active else "Inactive" }}</td>
+      <td>
+        <a href="{{ url_for('admin.edit_room', room_id=room.id) }}">Edit</a>
+        {% if room.active %}
+        <form method="post" action="{{ url_for('admin.deactivate', room_id=room.id) }}" style="display:inline">
+          <button type="submit">Deactivate</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7">No rooms found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

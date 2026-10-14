@@ -1,0 +1,60 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Maintenance Blocks</h1>
+<p><a href="{{ url_for('admin.rooms') }}">Back to Room Administration</a></p>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <p class="{{ category }}">{{ message }}</p>
+  {% endfor %}
+{% endwith %}
+
+<h2>Block a Room</h2>
+<form method="post" action="{{ url_for('admin.new_block') }}">
+  <label for="room_id">Room</label>
+  <select id="room_id" name="room_id" required>
+    {% for room in rooms %}
+      {% if room.active %}
+      <option value="{{ room.id }}">{{ room.name }} — {{ room.location }}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+
+  <label for="start_time">Start time</label>
+  <input id="start_time" name="start_time" type="datetime-local" required>
+
+  <label for="end_time">End time</label>
+  <input id="end_time" name="end_time" type="datetime-local" required>
+
+  <label for="reason">Reason</label>
+  <input id="reason" name="reason" required>
+
+  <button type="submit">Create Block</button>
+</form>
+
+<h2>Existing Maintenance Blocks</h2>
+<table>
+  <thead>
+    <tr><th>Room ID</th><th>Start</th><th>End</th><th>Reason</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    {% for block in blocks %}
+    <tr>
+      <td>{{ block.room_id }}</td>
+      <td>{{ block.start_time }}</td>
+      <td>{{ block.end_time }}</td>
+      <td>{{ block.reason }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.remove_block', block_id=block.id) }}">
+          <button type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">No maintenance blocks found.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
