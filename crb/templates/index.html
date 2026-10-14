@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Conference Room Booking</h1>
+{% if session.get("user_id") %}
+<p>Welcome, {{ session["username"] }}. Use "Search rooms" to find an available room.</p>
+{% else %}
+<p>Please <a href="/login">log in</a> to search and book rooms.</p>
+{% endif %}
+{% endblock %}

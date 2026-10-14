@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Home{% endblock %} - Conference Room Booking</title>
+</head>
+<body>
+<nav>
+  <a href="/">Home</a> |
+  <a href="/rooms/search">Search rooms</a>
+  {% if session.get("role") == "admin" %}
+    | <a href="/admin/rooms">Manage rooms</a>
+    | <a href="/admin/blocks">Maintenance</a>
+  {% endif %}
+  {% if session.get("role") in ("admin", "auditor") %}
+    | <a href="/audit">Audit log</a>
+  {% endif %}
+  {% if session.get("user_id") %}
+    | Signed in as {{ session["username"] }} ({{ session["role"] }})
+    <form method="post" action="/logout"><button type="submit">Log out</button></form>
+  {% else %}
+    | <a href="/login">Log in</a>
+  {% endif %}
+</nav>
+<hr>
+{% block content %}{% endblock %}
+</body>
+</html>
