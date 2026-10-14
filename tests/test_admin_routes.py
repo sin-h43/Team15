@@ -312,3 +312,37 @@ def test_delete_missing_block_returns_404(client):
     login_as(client)
     response = client.post("/admin/blocks/99999/delete")
     assert response.status_code == 404
+
+
+def test_create_room_updates_list_and_records_audit(client, app):
+    login_as(client)
+
+    response = client.post(
+        "/admin/rooms/new",
+        data=room_form(name="Audit Test Room"),
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/admin/rooms")
+
+    # Verify the newly created room appears in the admin room list.
+    response = client.get("/admin/rooms")
+    assert response.status_code == 200
+    assert b"Audit Test Room" in response.data
+
+    # Verify the action was recorded in the audit log.
+    with app.app_context():
+        audit = get_db().execute(
+            """
+            SELECT actor, action, detail
+            FROM audit_log
+            WHERE action = ?
+            ORDER BY rowid DESC
+            LIMIT 1
+            """,
+            ("room_created",),
+        ).fetchone()
+
+        assert audit is not None
+        assert audit["actor"] == "admin"
+        assert "created" in audit["detail"]
