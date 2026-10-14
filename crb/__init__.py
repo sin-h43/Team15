@@ -1,0 +1,1 @@
+"""Conference Room Booking (CRB) application package."""
