@@ -1,7 +1,9 @@
 import os
 
+
 from flask import Flask, render_template
 from crb.admin_routes import admin_bp
+
 from crb.db import close_db, init_db
 from crb.seed import seed
 
@@ -29,7 +31,8 @@ def create_app(test_config=None):
     # Each module owner adds their blueprint under their own marker below.
 
     # SLOT-AUTH
-
+    from crb.auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
     # SLOT-AUDIT
 
     # SLOT-SEARCH
