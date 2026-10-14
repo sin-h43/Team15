@@ -36,6 +36,8 @@ def create_app(test_config=None):
     # SLOT-AUDIT
 
     # SLOT-SEARCH
+    from crb.search_routes import search_bp
+    app.register_blueprint(search_bp)
 
     # SLOT-ADMIN
     app.register_blueprint(admin_bp)
