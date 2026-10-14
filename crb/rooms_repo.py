@@ -66,3 +66,24 @@ def list_rooms(include_inactive=False):
         ).fetchall()
 
     return [dict(row) for row in rows]
+def search_available_rooms(start_time, end_time):
+    """Return active rooms not blocked during the requested time range."""
+    db = get_db()
+    rows = db.execute(
+        """
+        SELECT r.*
+        FROM rooms AS r
+        WHERE r.active = 1
+          AND NOT EXISTS (
+              SELECT 1
+              FROM maintenance_blocks AS m
+              WHERE m.room_id = r.id
+                AND m.start_time < ?
+                AND m.end_time > ?
+          )
+        ORDER BY r.id
+        """,
+        (end_time, start_time),
+    ).fetchall()
+
+    return [dict(row) for row in rows]
