@@ -1,0 +1,29 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ "Edit Room" if room else "Add Room" }}</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <p class="{{ category }}">{{ message }}</p>
+  {% endfor %}
+{% endwith %}
+
+<form method="post">
+  <label for="name">Room name</label>
+  <input id="name" name="name" required value="{{ room.name if room else '' }}">
+
+  <label for="location">Location</label>
+  <input id="location" name="location" required value="{{ room.location if room else '' }}">
+
+  <label for="capacity">Capacity</label>
+  <input id="capacity" name="capacity" type="number" min="1" required value="{{ room.capacity if room else '' }}">
+
+  <label for="equipment">Equipment</label>
+  <input id="equipment" name="equipment" value="{{ room.equipment if room else '' }}">
+
+  <button type="submit">Save Room</button>
+  <a href="{{ url_for('admin.rooms') }}">Cancel</a>
+</form>
+{% endblock %}
