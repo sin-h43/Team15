@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Search Rooms{% endblock %}
+
+{% block content %}
+<h1>Search Available Rooms</h1>
+
+<form method="get" action="/rooms/search">
+  <label>Date:
+    <input type="date" name="date" required>
+  </label>
+  <br>
+
+  <label>Start time:
+    <input type="time" name="start" required>
+  </label>
+  <br>
+
+  <label>End time:
+    <input type="time" name="end" required>
+  </label>
+  <br>
+
+  <label>Location:
+    <input type="text" name="location" maxlength="100">
+  </label>
+  <br>
+
+  <label>Minimum capacity:
+    <input type="number" name="capacity" min="1">
+  </label>
+  <br>
+
+  <p>Required equipment:</p>
+  {% for item in ["projector", "video_conf", "whiteboard"] %}
+    <label>
+      <input type="checkbox" name="equipment" value="{{ item }}">
+      {{ item }}
+    </label>
+  {% endfor %}
+  <br>
+
+  <button type="submit">Search</button>
+</form>
+
+<h2>Matching Rooms</h2>
+
+{% if rooms %}
+<table border="1">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Location</th>
+      <th>Capacity</th>
+      <th>Equipment</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for room in rooms %}
+    <tr>
+      <td>{{ room.name }}</td>
+      <td>{{ room.location }}</td>
+      <td>{{ room.capacity }}</td>
+      <td>{{ room.equipment }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% elif request.args %}
+<p>No matching rooms found.</p>
+{% else %}
+<p>Enter your requirements to find available rooms.</p>
+{% endif %}
+{% endblock %}
