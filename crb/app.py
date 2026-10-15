@@ -31,7 +31,11 @@ def create_app(test_config=None):
     # SLOT-AUTH
     from crb.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
+    
     # SLOT-AUDIT
+    from crb.audit import bp as audit_bp
+    app.register_blueprint(audit_bp)
+
 
     # SLOT-SEARCH
 
