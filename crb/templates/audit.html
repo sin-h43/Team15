@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Audit log{% endblock %}
+{% block content %}
+<h1>Audit log</h1>
+{% if rows %}
+<table border="1" cellpadding="4">
+  <tr><th>Time</th><th>Who</th><th>Action</th><th>Detail</th></tr>
+  {% for row in rows %}
+  <tr>
+    <td>{{ row["created_at"] }}</td>
+    <td>{{ row["actor"] }}</td>
+    <td>{{ row["action"] }}</td>
+    <td>{{ row["detail"] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No admin actions have been recorded yet.</p>
+{% endif %}
+{% endblock %}
