@@ -2,6 +2,7 @@
 
 from flask import Blueprint, jsonify, render_template, request
 
+from crb.equipment import filter_by_equipment
 from crb.guards import login_required
 from crb.rooms_repo import search_available_rooms
 from crb.validators import (
@@ -38,19 +39,13 @@ def perform_search():
 
     rooms = search_available_rooms(start_time, end_time)
 
-    return [
+    rooms = [
         room for room in rooms
         if (not location or location.casefold() in room["location"].casefold())
         and (capacity is None or room["capacity"] >= capacity)
-        and all(
-            item in [
-                value.strip()
-                for value in room["equipment"].split(",")
-                if value.strip()
-            ]
-            for item in equipment
-        )
     ]
+
+    return filter_by_equipment(rooms, equipment)
 
 
 @search_bp.route("/rooms/search")
