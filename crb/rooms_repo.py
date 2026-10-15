@@ -1,4 +1,3 @@
-
 """Database operations for conference rooms."""
 
 from crb.db import get_db
@@ -67,7 +66,13 @@ def list_rooms(include_inactive=False):
 
     return [dict(row) for row in rows]
 def search_available_rooms(start_time, end_time):
-    """Return active rooms not blocked during the requested time range."""
+    """Return active rooms free during the requested time range (CRB-F-012).
+
+    A room is excluded if it has a confirmed booking or a maintenance block
+    overlapping the range. Two ranges overlap only when each starts before the
+    other ends, so back-to-back ranges (one ends exactly when the next starts)
+    do not overlap. Cancelled bookings do not block a room.
+    """
     db = get_db()
     rows = db.execute(
         """
@@ -81,9 +86,17 @@ def search_available_rooms(start_time, end_time):
                 AND m.start_time < ?
                 AND m.end_time > ?
           )
+          AND NOT EXISTS (
+              SELECT 1
+              FROM bookings AS b
+              WHERE b.room_id = r.id
+                AND b.status = 'confirmed'
+                AND b.start_time < ?
+                AND b.end_time > ?
+          )
         ORDER BY r.id
         """,
-        (end_time, start_time),
+        (end_time, start_time, end_time, start_time),
     ).fetchall()
 
     return [dict(row) for row in rows]
