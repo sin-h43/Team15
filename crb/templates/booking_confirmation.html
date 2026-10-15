@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Confirmed{% endblock %}
+
+{% block content %}
+<h1>Booking confirmed</h1>
+<p>Booking ID: <strong>{{ booking.id }}</strong></p>
+<ul>
+  <li>Room: {{ room.name }} ({{ room.location }})</li>
+  <li>Start: {{ booking.start_time }}</li>
+  <li>End: {{ booking.end_time }}</li>
+  <li>Status: {{ booking.status }}</li>
+</ul>
+<p><a href="/rooms/search">Back to search</a></p>
+{% endblock %}
