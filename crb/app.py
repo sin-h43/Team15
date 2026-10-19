@@ -47,6 +47,11 @@ def create_app(test_config=None):
     from crb.booking_routes import booking_bp
     app.register_blueprint(booking_bp)
     
+    # SLOT-VIEW
+    from crb.bookings_view import bp as view_bp
+    app.register_blueprint(view_bp)
+
+    
     # SLOT-ADMIN
     app.register_blueprint(admin_bp)
 

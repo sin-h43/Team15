@@ -1,6 +1,6 @@
 from flask import Blueprint, abort, render_template, session
 
-from crb.booking_view import booking_code
+from crb.bookings_view import booking_code
 from crb.booking_service import get_booking
 from crb.db import get_db
 from crb.guards import login_required
