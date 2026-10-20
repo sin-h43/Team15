@@ -36,18 +36,16 @@ def create_app(test_config=None):
     
     # SLOT-AUDIT
     from crb.audit import bp as audit_bp
-    app.register_blueprint(audit_bp)
-
-
-    # SLOT-SEARCH
-    from crb.search_routes import search_bp
-    app.register_blueprint(search_bp)
-
-    # SLOT-BOOKING
-    from crb.booking_routes import booking_bp
-    app.register_blueprint(booking_bp)
-    
-    # SLOT-ADMIN
     app.register_blueprint(admin_bp)
+
+    # Sprint 2 extension points: each owner adds two lines under their own marker.
+    # SLOT-BOOKING
+    # SLOT-VIEW
+    # SLOT-ATTENDEES
+    # SLOT-CANCEL
+    # SLOT-RECURRING
+    # SLOT-NOTIFY
+    # SLOT-REPORT
+    # SLOT-SECURITY
 
     return app
