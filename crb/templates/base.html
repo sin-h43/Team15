@@ -8,6 +8,8 @@
 <nav>
   <a href="/">Home</a> |
   <a href="/rooms/search">Search rooms</a>
+  {# Each feature adds its own nav_*.html file; a missing file is simply skipped. #}
+  {% for part in ["nav_bookings.html", "nav_recurring.html", "nav_reports.html", "nav_outbox.html"] %}{% include part ignore missing %}{% endfor %}
   {% if session.get("role") == "admin" %}
     | <a href="/admin/rooms">Manage rooms</a>
     | <a href="/admin/blocks">Maintenance</a>
