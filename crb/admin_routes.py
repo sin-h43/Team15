@@ -144,6 +144,8 @@ def new_block():
         flash("Cannot block an inactive room.", "error")
         return redirect(url_for("admin.blocks"))
 
+    start_time = start.strftime("%Y-%m-%d %H:%M")
+    end_time = end.strftime("%Y-%m-%d %H:%M")
     block_id = create_block(room_id, start_time, end_time, reason)
     write_audit("maintenance_block_created", f"Block {block_id} created")
     flash("Maintenance block created.", "success")

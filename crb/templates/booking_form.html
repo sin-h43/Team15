@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Book a Room{% endblock %}
+
+{% block content %}
+<h1>Book a Room</h1>
+
+{% if error %}
+<p role="alert" style="color:#b00020">{{ error }}</p>
+{% endif %}
+
+<form method="post" action="/bookings">
+  <label>Room:
+    <input type="number" name="room_id" min="1" required
+           value="{{ values.get('room_id', '') }}">
+  </label>
+  {% if room %}<span>({{ room.name }}, {{ room.location }})</span>{% endif %}
+  <br>
+
+  <label>Date:
+    <input type="date" name="date" required value="{{ values.get('date', '') }}">
+  </label>
+  <br>
+
+  <label>Start time:
+    <input type="time" name="start" required value="{{ values.get('start', '') }}">
+  </label>
+  <br>
+
+  <label>End time:
+    <input type="time" name="end" required value="{{ values.get('end', '') }}">
+  </label>
+  <br>
+
+  <button type="submit">Confirm booking</button>
+</form>
+{% endblock %}
