@@ -46,7 +46,9 @@ def create_app(test_config=None):
     app.register_blueprint(admin_bp)
 
     # Sprint 2 extension points: each owner adds two lines under their own marker.
-    # SLOT-BOOKING
+     # SLOT-BOOKING
+    from crb.booking_routes import bp as booking_bp
+    app.register_blueprint(booking_bp)
     # SLOT-VIEW
     # SLOT-ATTENDEES
     # SLOT-CANCEL
