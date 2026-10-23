@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}My bookings{% endblock %}
+{% block content %}
+<h1>My bookings</h1>
+{% if bookings %}
+<table border="1" cellpadding="4">
+  <tr><th>Booking</th><th>Room</th><th>From</th><th>To</th><th>Status</th></tr>
+  {% for item in bookings %}
+  <tr>
+    <td><a href="/bookings/{{ item['row']['id'] }}">{{ item["code"] }}</a></td>
+    <td>{{ item["row"]["room_name"] }}</td>
+    <td>{{ item["row"]["start_time"] }}</td>
+    <td>{{ item["row"]["end_time"] }}</td>
+    <td>{{ item["row"]["status"] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>You have no bookings yet. <a href="/rooms/search">Search for a room</a>.</p>
+{% endif %}
+{% endblock %}
