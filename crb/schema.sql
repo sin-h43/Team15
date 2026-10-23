@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS outbox;
+DROP TABLE IF EXISTS attendees;
 DROP TABLE IF EXISTS audit_log;
 DROP TABLE IF EXISTS maintenance_blocks;
 DROP TABLE IF EXISTS bookings;
@@ -22,6 +24,7 @@ CREATE TABLE rooms (
     active INTEGER NOT NULL DEFAULT 1
 );
 
+-- status: held (2-minute checkout hold), confirmed, cancelled, expired (hold ran out)
 CREATE TABLE bookings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     room_id INTEGER NOT NULL REFERENCES rooms (id),
@@ -29,6 +32,20 @@ CREATE TABLE bookings (
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'confirmed'
+        CHECK (status IN ('held', 'confirmed', 'cancelled', 'expired')),
+    hold_expires_at TEXT,
+    series_id INTEGER,
+    reminder_sent INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+);
+
+CREATE TABLE attendees (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    booking_id INTEGER NOT NULL REFERENCES bookings (id),
+    user_id INTEGER NOT NULL REFERENCES users (id),
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    UNIQUE (booking_id, user_id)
 );
 
 CREATE TABLE maintenance_blocks (
@@ -44,5 +61,14 @@ CREATE TABLE audit_log (
     actor TEXT NOT NULL,
     action TEXT NOT NULL,
     detail TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+-- Emails are saved here instead of being sent (a real mail server is a later swap).
+CREATE TABLE outbox (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    to_username TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    body TEXT NOT NULL,
     created_at TEXT NOT NULL
 );

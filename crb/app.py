@@ -1,7 +1,7 @@
 import os
 
 
-from flask import Flask, render_template
+from flask import Flask, app, render_template
 from crb.admin_routes import admin_bp
 
 from crb.db import close_db, init_db
@@ -30,17 +30,16 @@ def create_app(test_config=None):
 
     # Each module owner adds their blueprint under their own marker below.
 
-    # SLOT-AUTH
+        # SLOT-AUTH
     from crb.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
-    
+
     # SLOT-AUDIT
     from crb.audit import bp as audit_bp
     app.register_blueprint(audit_bp)
 
-
     # SLOT-SEARCH
-    from crb.search_routes import search_bp
+    from crb.search_routes import bp as search_bp
     app.register_blueprint(search_bp)
 
     # SLOT-BOOKING
@@ -57,5 +56,17 @@ def create_app(test_config=None):
 
     # SLOT-ADMIN
     app.register_blueprint(admin_bp)
+
+    # Sprint 2 extension points: each owner adds two lines under their own marker.
+     # SLOT-BOOKING
+    from crb.booking_routes import bp as booking_bp
+    app.register_blueprint(booking_bp)
+    # SLOT-VIEW
+    # SLOT-ATTENDEES
+    # SLOT-CANCEL
+    # SLOT-RECURRING
+    # SLOT-NOTIFY
+    # SLOT-REPORT
+    # SLOT-SECURITY
 
     return app

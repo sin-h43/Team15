@@ -1,24 +1,9 @@
-"""Equipment filter helper for CRB-F-011."""
+def split_equipment(text):
+    """'projector,whiteboard' -> ['projector', 'whiteboard'] ('' -> [])."""
+    return [item for item in text.split(",") if item]
 
 
-def room_equipment(room):
-    """Return the set of equipment a room has, from its comma-separated text.
-
-    Whitespace and letter case are ignored, so "Projector, Whiteboard" and
-    "projector,whiteboard" give the same result.
-    """
-    return {
-        item.strip().casefold()
-        for item in (room.get("equipment") or "").split(",")
-        if item.strip()
-    }
-
-
-def filter_by_equipment(rooms, required):
-    """Keep only rooms that have every item in `required`.
-
-    A room that lacks any required item is excluded. An empty `required`
-    list means no filtering, so every room is kept.
-    """
-    needed = {item.strip().casefold() for item in required if item.strip()}
-    return [room for room in rooms if needed <= room_equipment(room)]
+def has_all_equipment(room_equipment, wanted):
+    """True when the room has every wanted item (an empty wish list always passes)."""
+    have = split_equipment(room_equipment)
+    return all(item in have for item in wanted)

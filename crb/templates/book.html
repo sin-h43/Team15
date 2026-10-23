@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Book {{ room["name"] }}{% endblock %}
+{% block content %}
+<h1>Book {{ room["name"] }}</h1>
+<p>{{ room["location"] }}, capacity {{ room["capacity"] }}, equipment: {{ room["equipment"] or "none" }}</p>
+{% if error %}<p><strong>{{ error }}</strong></p>{% endif %}
+<form method="post" action="/rooms/{{ room['id'] }}/book">
+  <p><label>Date <input type="date" name="date" value="{{ values['date'] }}" required></label></p>
+  <p>
+    <label>Start time <input type="time" name="start" value="{{ values['start'] }}" required></label>
+    <label>End time <input type="time" name="end" value="{{ values['end'] }}" required></label>
+  </p>
+  <p><button type="submit">Book this room</button> <a href="/rooms/search">Cancel</a></p>
+</form>
+{% endblock %}

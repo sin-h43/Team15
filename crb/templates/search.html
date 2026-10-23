@@ -1,74 +1,53 @@
 {% extends "base.html" %}
-
-{% block title %}Search Rooms{% endblock %}
-
+{% block title %}Search rooms{% endblock %}
 {% block content %}
-<h1>Search Available Rooms</h1>
-
+<h1>Search rooms</h1>
 <form method="get" action="/rooms/search">
-  <label>Date:
-    <input type="date" name="date" required>
-  </label>
-  <br>
-
-  <label>Start time:
-    <input type="time" name="start" required>
-  </label>
-  <br>
-
-  <label>End time:
-    <input type="time" name="end" required>
-  </label>
-  <br>
-
-  <label>Location:
-    <input type="text" name="location" maxlength="100">
-  </label>
-  <br>
-
-  <label>Minimum capacity:
-    <input type="number" name="capacity" min="1">
-  </label>
-  <br>
-
-  <p>Required equipment:</p>
-  {% for item in ["projector", "video_conf", "whiteboard"] %}
-    <label>
-      <input type="checkbox" name="equipment" value="{{ item }}">
-      {{ item }}
+  <p>
+    <label>Location
+      <select name="location">
+        <option value="">Any</option>
+        {% for place in locations %}
+        <option value="{{ place }}" {% if args.get("location") == place %}selected{% endif %}>{{ place }}</option>
+        {% endfor %}
+      </select>
     </label>
-  {% endfor %}
-  <br>
-
-  <button type="submit">Search</button>
+  </p>
+  <p><label>Date <input type="date" name="date" value="{{ args.get('date', '') }}" required></label></p>
+  <p>
+    <label>Start time <input type="time" name="start" value="{{ args.get('start', '') }}" required></label>
+    <label>End time <input type="time" name="end" value="{{ args.get('end', '') }}" required></label>
+  </p>
+  <p><label>Minimum capacity <input type="number" name="capacity" min="1" value="{{ args.get('capacity', '1') }}"></label></p>
+  <p>
+    Equipment:
+    {% for item in all_equipment %}
+    <label><input type="checkbox" name="equipment" value="{{ item }}" {% if item in args.getlist("equipment") %}checked{% endif %}> {{ item }}</label>
+    {% endfor %}
+  </p>
+  <p><button type="submit">Search</button></p>
 </form>
 
-<h2>Matching Rooms</h2>
+{% if error %}
+<p><strong>{{ error }}</strong></p>
+{% endif %}
 
-{% if rooms %}
-<table border="1">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Location</th>
-      <th>Capacity</th>
-      <th>Equipment</th>
-    </tr>
-  </thead>
-  <tbody>
+{% if searched and not error %}
+  {% if rooms %}
+  <table border="1" cellpadding="4">
+    <tr><th>Room</th><th>Location</th><th>Capacity</th><th>Equipment</th><th>Book</th></tr>
     {% for room in rooms %}
     <tr>
-      <td>{{ room.name }}</td>
-      <td>{{ room.location }}</td>
-      <td>{{ room.capacity }}</td>
-      <td>{{ room.equipment }}</td>
+      <td>{{ room["name"] }}</td>
+      <td>{{ room["location"] }}</td>
+      <td>{{ room["capacity"] }}</td>
+      <td>{{ room["equipment"] or "none" }}</td>
+      <td><a href="/rooms/{{ room['id'] }}/book?date={{ args.get('date', '') }}&start={{ args.get('start', '') }}&end={{ args.get('end', '') }}">Book</a></td>
     </tr>
     {% endfor %}
-  </tbody>
-</table>
-{% elif request.args %}
-<p>No matching rooms found.</p>
-{% else %}
-<p>Enter your requirements to find available rooms.</p>
+  </table>
+  {% else %}
+  <p>No rooms are available for those filters.</p>
+  {% endif %}
 {% endif %}
 {% endblock %}
