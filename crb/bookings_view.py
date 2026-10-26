@@ -1,6 +1,6 @@
 from flask import Blueprint, abort, render_template, session
 
-from crb.bookings_view import booking_code
+from crb.booking_code import booking_code 
 from crb.booking_service import get_booking
 from crb.db import get_db
 from crb.guards import login_required
@@ -38,7 +38,7 @@ def booking_page(booking_id):
     return render_template(
         "booking.html",
         booking=booking,
-        room=get_room(db, booking["room_id"]),
+        room=get_room(booking["room_id"]),
         owner=owner["username"],
         code=booking_code(booking_id),
         can_manage=can_manage(booking, user_id, role),

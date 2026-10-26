@@ -13,6 +13,5 @@
 <h2>Actions</h2>
 {# Each feature adds its own *_part.html file; a missing file is simply skipped. #}
 {% for part in ["confirm_part.html", "attendees_part.html", "reschedule_part.html", "cancel_part.html", "series_part.html"] %}{% include part ignore missing %}{% endfor %}
-
 <p><a href="/my-bookings">My bookings</a> | <a href="/rooms/search">Search rooms</a></p>
 {% endblock %}
