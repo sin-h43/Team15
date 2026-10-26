@@ -1,0 +1,5 @@
+{% if can_manage and booking["status"] in ("held", "confirmed") %}
+<form method="post" action="/bookings/{{ booking['id'] }}/cancel">
+  <button type="submit">Cancel booking</button>
+</form>
+{% endif %}
