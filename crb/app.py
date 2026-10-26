@@ -64,6 +64,8 @@ def create_app(test_config=None):
     # SLOT-RECURRING
     # SLOT-NOTIFY
     # SLOT-REPORT
+    from crb.report_routes import bp as report_bp
+    app.register_blueprint(report_bp)
     # SLOT-SECURITY
 
     return app
