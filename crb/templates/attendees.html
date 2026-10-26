@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Attendees{% endblock %}
+{% block content %}
+<h1>Attendees for {{ code }}</h1>
+{% if error %}<p><strong>{{ error }}</strong></p>{% endif %}
+{% if attendees %}
+<table border="1" cellpadding="4">
+  <tr><th>Name</th><th>Email</th></tr>
+  {% for person in attendees %}
+  <tr><td>{{ person["name"] }}</td><td>{{ person["email"] }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No attendees yet.</p>
+{% endif %}
+<form method="post" action="/bookings/{{ booking['id'] }}/attendees">
+  <p><label>Employee username <input name="username" required></label></p>
+  <p><button type="submit">Add attendee</button></p>
+</form>
+<p><a href="/bookings/{{ booking['id'] }}">Back to the booking</a></p>
+{% endblock %}
