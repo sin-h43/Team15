@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Recurring Booking Results{% endblock %}
+{% block content %}
+<h1>Recurring Booking Results</h1>
+<p>Room: {{ room["name"] }}</p>
+<p>Series ID: {{ result["series_id"] }}</p>
+<p>Successful bookings: {{ result["booking_ids"]|length }}</p>
+
+{% if result["conflicts"] %}
+<h2>Conflicting dates not booked</h2>
+<ul>
+  {% for date in result["conflicts"] %}
+  <li>{{ date }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>All occurrences were booked successfully.</p>
+{% endif %}
+
+<h2>Created booking IDs</h2>
+<ul>
+  {% for booking_id in result["booking_ids"] %}
+  <li><a href="/bookings/{{ booking_id }}">Booking {{ booking_id }}</a></li>
+  {% endfor %}
+</ul>
+<p><a href="/my-bookings">My bookings</a></p>
+{% endblock %}

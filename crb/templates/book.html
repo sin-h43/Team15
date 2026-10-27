@@ -10,6 +10,15 @@
     <label>Start time <input type="time" name="start" value="{{ values['start'] }}" required></label>
     <label>End time <input type="time" name="end" value="{{ values['end'] }}" required></label>
   </p>
+  <p>
+    <label>Repeat
+      <select name="recurrence">
+        <option value="none">One time</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+    </label>
+  </p>
   <p><button type="submit">Book this room</button> <a href="/rooms/search">Cancel</a></p>
 </form>
 {% endblock %}
