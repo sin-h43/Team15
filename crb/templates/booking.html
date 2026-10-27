@@ -1,17 +1,49 @@
+
 {% extends "base.html" %}
 {% block title %}Booking {{ code }}{% endblock %}
 {% block content %}
 <h1>Booking {{ code }}</h1>
+
 <table border="1" cellpadding="4">
-  <tr><th>Status</th><td>{{ booking["status"] }}</td></tr>
-  <tr><th>Room</th><td>{{ room["name"] }} ({{ room["location"] }})</td></tr>
-  <tr><th>From</th><td>{{ booking["start_time"] }}</td></tr>
-  <tr><th>To</th><td>{{ booking["end_time"] }}</td></tr>
-  <tr><th>Booked by</th><td>{{ owner }}</td></tr>
+  <tr>
+    <th>Status</th>
+    <td>{{ booking["status"] }}</td>
+  </tr>
+  <tr>
+    <th>Room</th>
+    <td>{{ room["name"] }} ({{ room["location"] }})</td>
+  </tr>
+  <tr>
+    <th>From</th>
+    <td>{{ booking["start_time"] }}</td>
+  </tr>
+  <tr>
+    <th>To</th>
+    <td>{{ booking["end_time"] }}</td>
+  </tr>
+  <tr>
+    <th>Booked by</th>
+    <td>{{ owner }}</td>
+  </tr>
 </table>
 
 <h2>Actions</h2>
+
+{% if can_manage and booking["status"] == "confirmed" %}
+<p>
+  <a href="/bookings/{{ booking['id'] }}/edit">
+    Edit this occurrence
+  </a>
+</p>
+{% endif %}
+
 {# Each feature adds its own *_part.html file; a missing file is simply skipped. #}
-{% for part in ["confirm_part.html", "attendees_part.html", "reschedule_part.html", "cancel_part.html", "series_part.html"] %}{% include part ignore missing %}{% endfor %}
-<p><a href="/my-bookings">My bookings</a> | <a href="/rooms/search">Search rooms</a></p>
+{% for part in ["confirm_part.html", "attendees_part.html", "reschedule_part.html", "cancel_part.html", "series_part.html"] %}
+  {% include part ignore missing %}
+{% endfor %}
+
+<p>
+  <a href="/my-bookings">My bookings</a> |
+  <a href="/rooms/search">Search rooms</a>
+</p>
 {% endblock %}
