@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Edit Booking{% endblock %}
+{% block content %}
+<h1>Edit this occurrence</h1>
+
+{% if error %}
+<p><strong>{{ error }}</strong></p>
+{% endif %}
+
+<form method="post">
+  <p>
+    <label>Date
+      <input type="date" name="date"
+        value="{{ booking['start_time'][:10] }}" required>
+    </label>
+  </p>
+  <p>
+    <label>Start time
+      <input type="time" name="start"
+        value="{{ booking['start_time'][11:16] }}" required>
+    </label>
+    <label>End time
+      <input type="time" name="end"
+        value="{{ booking['end_time'][11:16] }}" required>
+    </label>
+  </p>
+  <button type="submit">Save changes</button>
+  <a href="/bookings/{{ booking['id'] }}">Cancel</a>
+</form>
+{% endblock %}
