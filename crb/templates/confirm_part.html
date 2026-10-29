@@ -1,0 +1,6 @@
+{% if booking["status"] == "held" and booking["user_id"] == session.get("user_id") %}
+<p>This room is held for you until {{ booking["hold_expires_at"] }}. Add attendees if you want, then confirm.</p>
+<form method="post" action="/bookings/{{ booking['id'] }}/confirm">
+  <button type="submit">Confirm booking</button>
+</form>
+{% endif %}
