@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Move booking{% endblock %}
+{% block content %}
+<h1>Move booking {{ code }}</h1>
+{% if error %}<p><strong>{{ error }}</strong></p>{% endif %}
+<form method="post" action="/bookings/{{ booking['id'] }}/reschedule">
+  <p>
+    <label>Room
+      <select name="room_id">
+        {% for room in rooms %}
+        <option value="{{ room['id'] }}" {% if room['id']|string == values['room_id']|string %}selected{% endif %}>{{ room["name"] }} ({{ room["location"] }})</option>
+        {% endfor %}
+      </select>
+    </label>
+  </p>
+  <p><label>Date <input type="date" name="date" value="{{ values['date'] }}" required></label></p>
+  <p>
+    <label>Start time <input type="time" name="start" value="{{ values['start'] }}" required></label>
+    <label>End time <input type="time" name="end" value="{{ values['end'] }}" required></label>
+  </p>
+  <p><button type="submit">Move booking</button> <a href="/bookings/{{ booking['id'] }}">Cancel</a></p>
+</form>
+{% endblock %}

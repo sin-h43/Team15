@@ -45,9 +45,12 @@ def create_app(test_config=None):
     app.register_blueprint(admin_bp)
 
     # Sprint 2 extension points: each owner adds two lines under their own marker.
-    # SLOT-BOOKING
+     # SLOT-BOOKING
     from crb.booking_routes import bp as booking_bp
     app.register_blueprint(booking_bp)
+
+    from crb.reschedule_routes import bp as reschedule_bp
+    app.register_blueprint(reschedule_bp)
 
     # SLOT-VIEW
     from crb.bookings_view import bp as view_bp
@@ -63,6 +66,10 @@ def create_app(test_config=None):
 
     # SLOT-RECURRING
     # SLOT-NOTIFY
+    from crb.reminders import bp as reminders_bp
+    app.register_blueprint(reminders_bp)
+    from crb.notify_routes import bp as notify_bp
+    app.register_blueprint(notify_bp)
     # SLOT-REPORT
     from crb.report_routes import bp as report_bp
     app.register_blueprint(report_bp)
