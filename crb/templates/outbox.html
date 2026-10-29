@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Outbox{% endblock %}
+{% block content %}
+<h1>Sent emails</h1>
+{% if mails %}
+<table border="1" cellpadding="4">
+  <tr><th>Time</th><th>To</th><th>Subject</th><th>Message</th></tr>
+  {% for mail in mails %}
+  <tr>
+    <td>{{ mail["row"]["created_at"] }}</td>
+    <td>{{ mail["address"] }}</td>
+    <td>{{ mail["row"]["subject"] }}</td>
+    <td><pre>{{ mail["row"]["body"] }}</pre></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No emails have been sent yet.</p>
+{% endif %}
+{% endblock %}

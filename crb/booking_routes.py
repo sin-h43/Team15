@@ -6,6 +6,7 @@ from crb.guards import login_required
 from crb.holds import confirm_hold, place_hold
 from crb.rooms_repo import get_room
 from crb.validators import ValidationError, parse_range
+from crb.notifications import notify_booking_created
 
 bp = Blueprint("booking", __name__)
 
@@ -54,4 +55,7 @@ def confirm(booking_id):
     except BookingError as problem:
         return render_template("message.html", title="Could not confirm", message=str(problem)), 409
     # HOOK-AFTER-CONFIRM
+    from crb.notifications import notify_booking_created
+    if newly_confirmed:
+        notify_booking_created(db, booking_id)
     return redirect("/bookings/" + str(booking_id))
