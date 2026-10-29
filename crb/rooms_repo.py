@@ -43,13 +43,21 @@ def deactivate_room(room_id):
     return cursor.rowcount > 0
 
 
-def get_room(room_id):
-    """Return a room as a dictionary, or None if it doesn't exist."""
-    db = get_db()
+def get_room(db, room_id=None):
+    """Return a room as a dictionary, or None if it doesn't exist.
+
+    Supports both the existing get_room(room_id) calls and the
+    planned get_room(db, room_id) interface used by B9.
+    """
+    if room_id is None:
+        room_id = db
+        db = get_db()
+
     row = db.execute(
         "SELECT * FROM rooms WHERE id = ?",
         (room_id,),
     ).fetchone()
+
     return dict(row) if row is not None else None
 
 
