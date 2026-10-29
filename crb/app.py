@@ -68,5 +68,10 @@ def create_app(test_config=None):
     # SLOT-NOTIFY
     # SLOT-REPORT
     # SLOT-SECURITY
+    from crb.security import apply_security_settings
+    apply_security_settings(app)
+    from crb.retention import bp as retention_bp
+    app.register_blueprint(retention_bp)
+
 
     return app
