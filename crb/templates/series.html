@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Recurring Booking Series{% endblock %}
+
+{% block content %}
+<h1>Recurring Booking Series</h1>
+
+<p>Series ID: <strong>{{ series_id }}</strong></p>
+
+{% if conflicts %}
+<h2>Occurrences not booked due to conflicts</h2>
+<ul>
+  {% for conflict in conflicts %}
+  <li>{{ conflict }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<h2>Occurrences</h2>
+
+{% if bookings %}
+<table border="1" cellpadding="5">
+  <tr>
+    <th>Booking ID</th>
+    <th>Room</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Status</th>
+  </tr>
+  {% for booking in bookings %}
+  <tr>
+    <td>
+      <a href="/bookings/{{ booking['id'] }}">
+        {{ booking['id'] }}
+      </a>
+    </td>
+    <td>{{ booking['room_name'] if booking['room_name'] is defined else booking['room_id'] }}</td>
+    <td>{{ booking['start_time'] }}</td>
+    <td>{{ booking['end_time'] }}</td>
+    <td>{{ booking['status'] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No occurrences were booked.</p>
+{% endif %}
+
+<p><a href="/recurring">Create another recurring booking</a></p>
+<p><a href="/my-bookings">My bookings</a></p>
+{% endblock %}
