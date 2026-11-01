@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Recurring Bookings{% endblock %}
+
+{% block content %}
+<h1>Create Recurring Booking</h1>
+
+{% if error %}
+<p><strong>{{ error }}</strong></p>
+{% endif %}
+
+<form method="post" action="/recurring">
+  <p>
+    <label>Room
+      <select name="room_id" required>
+        {% for room in rooms %}
+        <option value="{{ room['id'] }}"
+          {% if values.get('room_id', '')|string == room['id']|string %}selected{% endif %}>
+          {{ room['name'] }} - {{ room['location'] }}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+  </p>
+
+  <p>
+    <label>Date
+      <input type="date" name="date"
+        value="{{ values.get('date', '') }}" required>
+    </label>
+  </p>
+
+  <p>
+    <label>Start time
+      <input type="time" name="start"
+        value="{{ values.get('start', '') }}" required>
+    </label>
+
+    <label>End time
+      <input type="time" name="end"
+        value="{{ values.get('end', '') }}" required>
+    </label>
+  </p>
+
+  <p>
+    <label>Repeat
+      <select name="frequency" required>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+    </label>
+  </p>
+
+  <button type="submit">Create recurring bookings</button>
+</form>
+
+<p><a href="/my-bookings">My bookings</a></p>
+{% endblock %}

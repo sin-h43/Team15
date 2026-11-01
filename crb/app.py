@@ -65,6 +65,8 @@ def create_app(test_config=None):
     app.register_blueprint(cancel_bp)
 
     # SLOT-RECURRING
+    from crb.recurring_routes import bp as recurring_bp
+    app.register_blueprint(recurring_bp)
     # SLOT-NOTIFY
     from crb.reminders import bp as reminders_bp
     app.register_blueprint(reminders_bp)
@@ -74,5 +76,10 @@ def create_app(test_config=None):
     from crb.report_routes import bp as report_bp
     app.register_blueprint(report_bp)
     # SLOT-SECURITY
+    from crb.security import apply_security_settings
+    apply_security_settings(app)
+    from crb.retention import bp as retention_bp
+    app.register_blueprint(retention_bp)
+
 
     return app
