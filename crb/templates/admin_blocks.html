@@ -13,23 +13,23 @@
 
 <h2>Block a Room</h2>
 <form method="post" action="{{ url_for('admin.new_block') }}">
-  <label for="room_id">Room</label>
-  <select id="room_id" name="room_id" required>
-    {% for room in rooms %}
-      {% if room.active %}
-      <option value="{{ room.id }}">{{ room.name }} — {{ room.location }}</option>
-      {% endif %}
-    {% endfor %}
-  </select>
+  <p><label>Room
+    <select id="room_id" name="room_id" required>
+      {% for room in rooms %}
+        {% if room.active %}
+        <option value="{{ room.id }}">{{ room.name }} — {{ room.location }}</option>
+        {% endif %}
+      {% endfor %}
+    </select></label></p>
 
-  <label for="start_time">Start time</label>
-  <input id="start_time" name="start_time" type="datetime-local" required>
+  <p><label>Start time
+    <input id="start_time" name="start_time" type="datetime-local" required></label></p>
 
-  <label for="end_time">End time</label>
-  <input id="end_time" name="end_time" type="datetime-local" required>
+  <p><label>End time
+    <input id="end_time" name="end_time" type="datetime-local" required></label></p>
 
-  <label for="reason">Reason</label>
-  <input id="reason" name="reason" required>
+  <p><label>Reason
+    <input id="reason" name="reason" required></label></p>
 
   <button type="submit">Create Block</button>
 </form>
