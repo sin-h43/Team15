@@ -29,6 +29,8 @@ def cancel(booking_id):
     if session["role"] == "admin":
         log_action(db, session["username"], "BOOKING_CANCELLED", "booking " + booking_code(booking_id))
     # HOOK-AFTER-CANCEL
+    from crb.cancel_notice import notify_booking_cancelled
+    notify_booking_cancelled(db, booking_id)
     return redirect("/bookings/" + str(booking_id))
 @bp.route("/bookings/<int:booking_id>/edit", methods=["GET", "POST"])
 @login_required
