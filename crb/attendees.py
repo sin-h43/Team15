@@ -1,4 +1,5 @@
 from crb.booking_service import BookingError, NotFound, get_booking
+from crb.crypto import decrypt_text, encrypt_text
 
 
 class AttendeeError(BookingError):
@@ -11,7 +12,10 @@ def email_for(username):
 
 
 def add_attendee(db, booking_id, username):
-    """Invite one internal employee (CRB-F-022). Returns the new attendee's user id."""
+    """Invite one internal employee (CRB-F-022). Returns the new attendee's user id.
+
+    The attendee's name and email are stored encrypted (CRB-SR-006).
+    """
     booking = get_booking(db, booking_id)
     if booking is None:
         raise NotFound("Booking not found")
@@ -27,15 +31,18 @@ def add_attendee(db, booking_id, username):
         raise AttendeeError(username + " is already an attendee")
     db.execute(
         "INSERT INTO attendees (booking_id, user_id, name, email) VALUES (?, ?, ?, ?)",
-        (booking_id, user["id"], user["username"], email_for(user["username"])),
+        (booking_id, user["id"], encrypt_text(user["username"]), encrypt_text(email_for(user["username"]))),
     )
     db.commit()
     return user["id"]
 
 
 def list_attendees(db, booking_id):
-    """Everybody invited to a booking, as plain dictionaries."""
+    """Everybody invited to a booking, as plain dictionaries (decrypted)."""
     rows = db.execute(
         "SELECT user_id, name, email FROM attendees WHERE booking_id = ? ORDER BY id", (booking_id,)
     ).fetchall()
-    return [{"user_id": row["user_id"], "name": row["name"], "email": row["email"]} for row in rows]
+    return [
+        {"user_id": row["user_id"], "name": decrypt_text(row["name"]), "email": decrypt_text(row["email"])}
+        for row in rows
+    ]
