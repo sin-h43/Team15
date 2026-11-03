@@ -72,3 +72,5 @@ CREATE TABLE outbox (
     body TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE INDEX idx_bookings_room_time ON bookings (room_id, start_time, end_time);
+CREATE INDEX idx_blocks_room_time ON maintenance_blocks (room_id, start_time, end_time);
