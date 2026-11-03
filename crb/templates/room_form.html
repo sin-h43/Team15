@@ -11,17 +11,17 @@
 {% endwith %}
 
 <form method="post">
-  <label for="name">Room name</label>
-  <input id="name" name="name" required value="{{ room.name if room else '' }}">
+  <p><label>Room name
+    <input id="name" name="name" required value="{{ room.name if room else '' }}"></label></p>
 
-  <label for="location">Location</label>
-  <input id="location" name="location" required value="{{ room.location if room else '' }}">
+  <p><label>Location
+    <input id="location" name="location" required value="{{ room.location if room else '' }}"></label></p>
 
-  <label for="capacity">Capacity</label>
-  <input id="capacity" name="capacity" type="number" min="1" required value="{{ room.capacity if room else '' }}">
+  <p><label>Capacity
+    <input id="capacity" name="capacity" type="number" min="1" required value="{{ room.capacity if room else '' }}"></label></p>
 
-  <label for="equipment">Equipment</label>
-  <input id="equipment" name="equipment" value="{{ room.equipment if room else '' }}">
+  <p><label>Equipment
+    <input id="equipment" name="equipment" value="{{ room.equipment if room else '' }}"></label></p>
 
   <button type="submit">Save Room</button>
   <a href="{{ url_for('admin.rooms') }}">Cancel</a>
