@@ -27,6 +27,15 @@ def can_deliver_to(address):
     return bool(address) and not address.lower().endswith(".example")
 
 
+def reason_from(problem):
+    """The mail service's own explanation (never contains our key), shortened for the log."""
+    try:
+        text = json.loads(problem.read().decode("utf-8", "replace")).get("message", "")
+    except Exception:
+        return ""
+    return (": " + text[:200]) if text else ""
+
+
 def deliver(to_address, subject, body):
     """Send one plain-text email. Raises MailError on any failure."""
     payload = json.dumps({
@@ -50,6 +59,6 @@ def deliver(to_address, subject, body):
             if response.status >= 300:
                 raise MailError("mail service answered " + str(response.status))
     except urllib.error.HTTPError as problem:
-        raise MailError("mail service answered " + str(problem.code))
+        raise MailError("mail service answered " + str(problem.code) + reason_from(problem))
     except (urllib.error.URLError, TimeoutError, OSError) as problem:
         raise MailError("could not reach the mail service: " + str(problem))

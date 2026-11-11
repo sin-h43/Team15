@@ -135,3 +135,24 @@ def test_cron_needs_the_right_secret_and_runs_the_jobs(app):
     ok = client.get("/cron/send-reminders", headers={"Authorization": "Bearer s3cret"})
     assert ok.status_code == 200
     assert ok.get_json() == {"reminders_sent": 0, "holds_released": 0}
+
+
+def test_the_mail_services_reason_is_logged_for_a_refusal(app, monkeypatch, caplog):
+    import io
+
+    app.config["RESEND_API_KEY"] = "re_test_key"
+
+    def refused(request, timeout=None):
+        body = io.BytesIO(b'{"message": "You can only send testing emails to your own email address"}')
+        raise urllib.error.HTTPError(request.full_url, 403, "forbidden", {}, body)
+
+    monkeypatch.setattr("crb.mailer.urllib.request.urlopen", refused)
+    make_user(app, "priya", "x" * 10)
+    with app.app_context():
+        db = get_db()
+        db.execute("UPDATE users SET email = 'priya@example.org' WHERE username = 'priya'")
+        db.commit()
+        send_email(db, "priya", "Hello", "Body")
+    assert "403: You can only send testing emails" in caplog.text
+    assert "re_test_key" not in caplog.text
+    assert outbox(app)[0]["status"] == "failed"
