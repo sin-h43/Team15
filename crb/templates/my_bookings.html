@@ -2,20 +2,26 @@
 {% block title %}My bookings{% endblock %}
 {% block content %}
 <h1>My bookings</h1>
+<p class="lead">Meetings you organise or have been invited to.</p>
 {% if bookings %}
-<table border="1" cellpadding="4">
-  <tr><th>Booking</th><th>Room</th><th>From</th><th>To</th><th>Status</th></tr>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Booking</th><th>Room</th><th>From</th><th>To</th><th>Status</th><th>Organiser</th></tr></thead>
+  <tbody>
   {% for item in bookings %}
   <tr>
     <td><a href="/bookings/{{ item['row']['id'] }}">{{ item["code"] }}</a></td>
     <td>{{ item["row"]["room_name"] }}</td>
     <td>{{ item["row"]["start_time"] }}</td>
     <td>{{ item["row"]["end_time"] }}</td>
-    <td>{{ item["row"]["status"] }}</td>
+    <td><span class="badge badge-{{ item['row']['status'] }}">{{ item["row"]["status"] }}</span></td>
+    <td>{{ "You" if item["mine"] else item["row"]["owner"] }}</td>
   </tr>
   {% endfor %}
+  </tbody>
 </table>
+</div>
 {% else %}
-<p>You have no bookings yet. <a href="/rooms/search">Search for a room</a>.</p>
+<div class="card empty">You have no bookings yet. <a href="/rooms/search">Search for a room</a>.</div>
 {% endif %}
 {% endblock %}

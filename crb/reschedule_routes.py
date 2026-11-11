@@ -1,10 +1,12 @@
 from flask import Blueprint, abort, redirect, render_template, request, session
 
+from crb.audit import log_action
 from crb.booking_code import booking_code
 from crb.booking_service import BookingError, NotAllowed, NotFound, get_booking
 from crb.bookings_view import can_manage
 from crb.db import get_db
 from crb.guards import login_required
+from crb.notifications import notify_booking_changed
 from crb.reschedule import reschedule_booking
 from crb.rooms_repo import list_rooms
 from crb.validators import ValidationError, parse_int, parse_range
@@ -59,4 +61,7 @@ def reschedule(booking_id):
         abort(404)
     except BookingError as problem:
         return show_form(booking, values, str(problem), 409)
+    if session["role"] == "admin":
+        log_action(db, session["username"], "BOOKING_RESCHEDULED", "booking " + booking_code(booking_id))
+    notify_booking_changed(db, booking_id)
     return redirect("/bookings/" + str(booking_id))

@@ -1,9 +1,11 @@
 import os
 
+import click
+
 from flask import Flask, render_template
 from crb.admin_routes import admin_bp
 
-from crb.db import close_db, init_db
+from crb.db import close_db, database_url_from_env, init_db, is_postgres
 from crb.seed import seed
 
 
@@ -11,6 +13,8 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("CRB_SECRET_KEY", "dev-secret-change-me")
     app.config["DATABASE"] = os.path.join(os.path.dirname(app.root_path), "crb.db")
+    testing = bool(test_config and test_config.get("TESTING"))
+    app.config["DATABASE_URL"] = database_url_from_env(testing)
     if test_config:
         app.config.update(test_config)
 
@@ -21,9 +25,16 @@ def create_app(test_config=None):
         return render_template("index.html")
 
     @app.cli.command("init-db")
-    def init_db_command():
+    @click.option("--yes", is_flag=True, help="Do not ask before wiping a Postgres database.")
+    @click.option("--empty", is_flag=True, help="Create the tables only, without demo users and rooms.")
+    def init_db_command(yes, empty):
         """Create empty tables and load demo users and rooms (wipes old data)."""
+        if is_postgres() and not yes:
+            click.confirm("This ERASES all CRB tables in the DATABASE_URL database. Continue?", abort=True)
         init_db()
+        if empty:
+            print("Database ready (empty).")
+            return
         seed()
         print("Database ready with demo data.")
 

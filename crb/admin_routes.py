@@ -4,9 +4,10 @@
 from datetime import datetime
 
 from flask import (
-    Blueprint, abort, flash, redirect, render_template, request, url_for
+    Blueprint, abort, flash, redirect, render_template, request, session, url_for
 )
 
+from crb.audit import log_action
 from crb.blocks_repo import create_block, delete_block, list_blocks
 from crb.db import get_db
 from crb.guards import role_required
@@ -17,7 +18,7 @@ from crb.rooms_repo import (
     list_rooms,
     update_room,
 )
-from crb.validators import ValidationError, parse_int, parse_text
+from crb.validators import ValidationError, parse_equipment, parse_int, parse_text
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -27,26 +28,16 @@ def read_room_form():
     name = parse_text(request.form.get("name"), "Room name")
     location = parse_text(request.form.get("location"), "Location")
     capacity = parse_int(request.form.get("capacity"), "Capacity")
-    equipment = (request.form.get("equipment") or "").strip()
+    chosen = []
+    for entry in request.form.getlist("equipment"):
+        chosen.extend(part.strip() for part in entry.split(",") if part.strip())
+    equipment = ",".join(parse_equipment(chosen))
     return name, location, capacity, equipment
 
 
 def write_audit(action, detail):
-    """Record an administrative action."""
-    db = get_db()
-    db.execute(
-        """
-        INSERT INTO audit_log (actor, action, detail, created_at)
-        VALUES (?, ?, ?, ?)
-        """,
-        (
-            "admin",
-            action,
-            detail,
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        ),
-    )
-    db.commit()
+    """Record an administrative action under the signed-in admin's username (CRB-SR-003)."""
+    log_action(get_db(), session.get("username", "admin"), action, detail)
 
 
 @admin_bp.route("/rooms")
@@ -113,10 +104,12 @@ def deactivate(room_id):
 @admin_bp.route("/blocks")
 @role_required("admin")
 def blocks():
+    all_rooms = list_rooms(include_inactive=True)
     return render_template(
         "admin_blocks.html",
         blocks=list_blocks(),
-        rooms=list_rooms(),
+        rooms=all_rooms,
+        room_names={room["id"]: room["name"] for room in all_rooms},
     )
 
 
@@ -148,7 +141,15 @@ def new_block():
     end_time = end.strftime("%Y-%m-%d %H:%M")
     block_id = create_block(room_id, start_time, end_time, reason)
     write_audit("maintenance_block_created", f"Block {block_id} created")
+    clashes = get_db().execute(
+        "SELECT COUNT(*) FROM bookings WHERE room_id = ? AND status = 'confirmed' "
+        "AND start_time < ? AND end_time > ?",
+        (room_id, end_time, start_time),
+    ).fetchone()[0]
     flash("Maintenance block created.", "success")
+    if clashes:
+        flash(str(clashes) + " existing confirmed booking(s) overlap this block. "
+              "They are not cancelled automatically; please review them.", "error")
     return redirect(url_for("admin.blocks"))
 
 

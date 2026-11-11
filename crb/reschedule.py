@@ -13,8 +13,7 @@ def reschedule_booking(db, booking_id, user_id, role, room_id, start, end, now=N
     now = now or datetime.now()
     if start < now.strftime(TIME_FORMAT):
         raise BookingError("You cannot book a time in the past")
-    db.commit()  # make sure no earlier transaction is still open
-    db.execute("BEGIN IMMEDIATE")
+    db.begin_write()
     try:
         booking = get_booking(db, booking_id)
         if booking is None:

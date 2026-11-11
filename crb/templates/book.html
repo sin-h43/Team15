@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Book {{ room["name"] }}{% endblock %}
 {% block content %}
-<h1>Book {{ room["name"] }}</h1>
-<p>{{ room["location"] }}, capacity {{ room["capacity"] }}, equipment: {{ room["equipment"] or "none" }}</p>
-<p>The room is held for 2 minutes while you check out.</p>
-{% if error %}<p><strong>{{ error }}</strong></p>{% endif %}
-<form method="post" action="/rooms/{{ room['id'] }}/book">
-  <p><label>Date <input type="date" name="date" value="{{ values['date'] }}" required></label></p>
-  <p>
-    <label>Start time <input type="time" name="start" value="{{ values['start'] }}" required></label>
-    <label>End time <input type="time" name="end" value="{{ values['end'] }}" required></label>
-  </p>
-  <p><button type="submit">Hold this room</button> <a href="/rooms/search">Cancel</a></p>
-</form>
+<div class="card medium">
+  <h1>Book {{ room["name"] }}</h1>
+  <p class="lead">{{ room["location"] }}, capacity {{ room["capacity"] }}, equipment: {{ room["equipment"] or "none" }}</p>
+  <div class="alert info">The room is held for 2 minutes while you check out.</div>
+  {% if error %}<div class="alert error" role="alert"><strong>{{ error }}</strong></div>{% endif %}
+  <form method="post" action="/rooms/{{ room['id'] }}/book">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">Date <input type="date" name="date" value="{{ values['date'] }}" required></label>
+    <div class="row">
+      <label class="field">Start time <input type="time" name="start" value="{{ values['start'] }}" required></label>
+      <label class="field">End time <input type="time" name="end" value="{{ values['end'] }}" required></label>
+    </div>
+    <div class="actions"><button type="submit">Hold this room</button> <a href="/rooms/search">Cancel</a></div>
+  </form>
+</div>
 {% endblock %}

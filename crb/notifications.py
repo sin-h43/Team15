@@ -46,3 +46,12 @@ def notify_booking_created(db, booking_id):
     for name in names:
         send_email(db, name, subject, body)
     return len(names)
+
+def notify_booking_changed(db, booking_id):
+    """Email the owner and every attendee that the booking was moved (CRB-F-030)."""
+    subject = "Booking " + booking_code(booking_id) + " changed"
+    body = "Your meeting has been changed.\n\n" + describe_booking(db, booking_id)
+    names = recipients(db, booking_id)
+    for name in names:
+        send_email(db, name, subject, body)
+    return len(names)

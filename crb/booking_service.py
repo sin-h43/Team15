@@ -21,14 +21,13 @@ def create_booking(db, user_id, room_id, start, end, now=None,
                    status="confirmed", hold_expires_at=None, series_id=None):
     """Insert a booking if the room exists, is active and is free. Returns the new id.
 
-    The check and the insert run inside ONE transaction (BEGIN IMMEDIATE locks the
-    database for writing), so two people cannot book the same slot at the same time.
+    The check and the insert run inside ONE transaction (begin_write locks out
+    other booking writes), so two people cannot book the same slot at the same time.
     """
     now = now or datetime.now()
     if start < now.strftime(TIME_FORMAT):
         raise BookingError("You cannot book a time in the past")
-    db.commit()  # make sure no earlier transaction is still open
-    db.execute("BEGIN IMMEDIATE")
+    db.begin_write()
     try:
         room = db.execute("SELECT * FROM rooms WHERE id = ?", (room_id,)).fetchone()
         if room is None or not room["active"]:

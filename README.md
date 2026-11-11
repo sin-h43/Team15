@@ -1,7 +1,7 @@
 # Conference Room Booking (CRB)
 
 A small web app for booking conference rooms, built for the Software Engineering course
-(Python, Flask and SQLite). Requirements: `CRB_SRS.docx`. Design: `CRB_SAD.docx`. Tests: `CRB_Test_Plan.docx`.
+(Python, Flask and SQLite, with optional Postgres for hosting). Requirements: `CRB_SRS.docx`. Design: `CRB_SAD.docx`. Tests: `CRB_Test_Plan.docx`.
 
 ## Run it
 
@@ -44,6 +44,8 @@ flask --app crb.app purge-old-logs   # removes audit log rows older than 2 years
 python -m pytest
 ```
 
+The suite also runs on Postgres; see `docs/DEPLOYMENT.md`.
+
 ## Where things live
 
 | Module (SAD)         | Files                                                                                  | Requirements |
@@ -51,12 +53,13 @@ python -m pytest
 | Foundation           | `crb/app.py`, `crb/db.py`, `crb/schema.sql`, `crb/seed.py`, `crb/validators.py`        | CRB-SR-005   |
 | Auth & Access        | `crb/guards.py`, `crb/lockout.py`, `crb/auth.py`, `crb/audit.py`, `crb/security.py`, `crb/crypto.py`, `crb/retention.py` | CRB-F-001/002/003, CRB-SR-001/002/003/004/006, CRB-NF-004 |
 | Booking Engine       | `crb/availability.py`, `crb/equipment.py`, `crb/search*.py`, `crb/booking_service.py`, `crb/holds.py`, `crb/hold_cleanup.py`, `crb/booking_routes.py`, `crb/bookings_view.py`, `crb/cancellation.py`, `crb/cancel_routes.py`, `crb/reschedule*.py`, `crb/attendees.py`, `crb/attendee_routes.py` | CRB-F-010/011/012/020/021/022/023/030/031/032 |
-| Recurring bookings   | `crb/recurrence.py`, `crb/recurring_routes.py`                                          | CRB-F-040/041 |
+| Recurring bookings   | `crb/recurring.py`, `crb/recurring_routes.py`                                          | CRB-F-040/041 |
 | Room/Resource Admin  | `crb/rooms_repo.py`, `crb/blocks_repo.py`, `crb/admin_routes.py`                        | CRB-F-050/051 |
 | Notifications and reports | `crb/notifications.py`, `crb/cancel_notice.py`, `crb/reminders.py`, `crb/notify_routes.py`, `crb/reports.py`, `crb/report_routes.py` | CRB-F-060/061/062/070 |
 
 ## Known limits
 
+- Set `DATABASE_URL` to use Postgres instead of the SQLite file (see `docs/DEPLOYMENT.md`).
 - Login uses local accounts, not company single sign-on.
 - Emails are saved in the `outbox` table and shown on the **Sent emails** page; no real mail is sent.
 - HTTPS needs a certificate; see `docs/DEPLOYMENT.md`.

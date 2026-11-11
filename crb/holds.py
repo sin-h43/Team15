@@ -26,6 +26,8 @@ def confirm_hold(db, booking_id, user_id, now=None):
         raise NotFound("Booking not found")
     if booking["status"] == "confirmed":
         return False
+    if booking["status"] == "expired":
+        raise BookingError("Your " + str(HOLD_MINUTES) + "-minute hold has run out. Please search again.")
     if booking["status"] != "held":
         raise BookingError("This booking can no longer be confirmed")
     if booking["hold_expires_at"] <= now.strftime(STAMP):

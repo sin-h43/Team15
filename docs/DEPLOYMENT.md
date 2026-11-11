@@ -40,3 +40,33 @@ Reminder emails are sent by a job. Run it every minute (cron on Linux/Mac, Task 
 ```bash
 flask --app crb.app send-reminders
 ```
+
+
+## Database: SQLite or Postgres (ADR-07)
+
+By default the app uses the SQLite file `crb.db`. For hosting (for example on Vercel, which has no
+persistent disk) set `DATABASE_URL` to a Postgres address such as a Neon connection string
+(use the pooled one, with `sslmode=require`):
+
+```bash
+export DATABASE_URL="postgresql://user:password@host/dbname?sslmode=require"
+flask --app crb.app init-db --empty   # creates the tables only (asks before wiping)
+```
+
+All SQL is written once in `crb/db.py`'s dialect-neutral form, so no other code changes between engines.
+Double-booking is prevented on both engines by one write lock around check-and-insert
+(`BEGIN IMMEDIATE` on SQLite, a Postgres advisory lock on Postgres).
+
+`init-db` erases the tables. On Postgres it asks for confirmation (`--yes` skips the question);
+`--empty` skips the demo users, whose passwords are public.
+
+### Running the tests on Postgres
+
+The tests use SQLite by default. To run the same suite on Postgres, point `CRB_TEST_DATABASE_URL`
+at a throw-away database (the tests wipe it). `DATABASE_URL` is never used by the tests.
+
+```bash
+docker run -d --name crb-pg-test -e POSTGRES_PASSWORD=crbtest -e POSTGRES_DB=crb_test -p 54329:5432 postgres:16-alpine
+export CRB_TEST_DATABASE_URL="postgresql://postgres:crbtest@localhost:54329/crb_test"
+python -m pytest
+```

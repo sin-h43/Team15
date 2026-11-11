@@ -2,29 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Home{% endblock %} - Conference Room Booking</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<nav>
-  <a href="/">Home</a> |
-  <a href="/rooms/search">Search rooms</a>
-  {# Each feature adds its own nav_*.html file; a missing file is simply skipped. #}
-  {% for part in ["nav_bookings.html", "nav_recurring.html", "nav_reports.html", "nav_outbox.html"] %}{% include part ignore missing %}{% endfor %}
-  {% if session.get("role") == "admin" %}
-    | <a href="/admin/rooms">Manage rooms</a>
-    | <a href="/admin/blocks">Maintenance</a>
-  {% endif %}
-  {% if session.get("role") in ("admin", "auditor") %}
-    | <a href="/audit">Audit log</a>
-  {% endif %}
-  {% if session.get("user_id") %}
-    | Signed in as {{ session["username"] }} ({{ session["role"] }})
-    <form method="post" action="/logout"><button type="submit">Log out</button></form>
-  {% else %}
-    | <a href="/login">Log in</a>
-  {% endif %}
-</nav>
-<hr>
-{% block content %}{% endblock %}
+<a class="skip-link" href="#content">Skip to main content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="/">Conference Room Booking</a>
+    <nav aria-label="Main">
+      {% set path = request.path %}
+      {% if session.get("user_id") %}
+      <a href="/rooms/search" {% if path.startswith("/rooms") %}class="active"{% endif %}>Search rooms</a>
+      <a href="/my-bookings" {% if path == "/my-bookings" %}class="active"{% endif %}>My bookings</a>
+      <a href="/recurring" {% if path.startswith("/recurring") %}class="active"{% endif %}>Recurring</a>
+      {% endif %}
+      {% if session.get("role") == "admin" %}
+      <a href="/admin/rooms" {% if path.startswith("/admin/rooms") %}class="active"{% endif %}>Rooms</a>
+      <a href="/admin/blocks" {% if path.startswith("/admin/blocks") %}class="active"{% endif %}>Maintenance</a>
+      <a href="/reports/utilisation" {% if path.startswith("/reports") %}class="active"{% endif %}>Report</a>
+      <a href="/outbox" {% if path == "/outbox" %}class="active"{% endif %}>Sent emails</a>
+      {% endif %}
+      {% if session.get("role") in ("admin", "auditor") %}
+      <a href="/audit" {% if path == "/audit" %}class="active"{% endif %}>Audit log</a>
+      {% endif %}
+      {# Extension point: a feature may add a nav_*.html file; a missing file is skipped. #}
+      {% for part in ["nav_bookings.html", "nav_recurring.html", "nav_reports.html", "nav_outbox.html"] %}{% include part ignore missing %}{% endfor %}
+    </nav>
+    <div class="user-box">
+      {% if session.get("user_id") %}
+      <span>{{ session["username"] }} <span class="role">{{ session["role"] }}</span></span>
+      <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Log out</button></form>
+      {% else %}
+      <a href="/login" style="color:#fff">Log in</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+<main id="content">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="alert {{ category }}" role="alert">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-footer">Conference Room Booking &middot; Team 15</footer>
 </body>
 </html>

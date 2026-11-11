@@ -2,9 +2,12 @@
 {% block title %}Outbox{% endblock %}
 {% block content %}
 <h1>Sent emails</h1>
+<p class="lead">The latest 100 notifications the system has sent.</p>
 {% if mails %}
-<table border="1" cellpadding="4">
-  <tr><th>Time</th><th>To</th><th>Subject</th><th>Message</th></tr>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Time</th><th>To</th><th>Subject</th><th>Message</th></tr></thead>
+  <tbody>
   {% for mail in mails %}
   <tr>
     <td>{{ mail["row"]["created_at"] }}</td>
@@ -13,8 +16,10 @@
     <td><pre>{{ mail["row"]["body"] }}</pre></td>
   </tr>
   {% endfor %}
+  </tbody>
 </table>
+</div>
 {% else %}
-<p>No emails have been sent yet.</p>
+<div class="card empty">No emails have been sent yet.</div>
 {% endif %}
 {% endblock %}
