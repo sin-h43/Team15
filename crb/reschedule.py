@@ -2,6 +2,7 @@ from datetime import datetime
 
 from crb.availability import is_room_free
 from crb.booking_service import TIME_FORMAT, BookingError, NotAllowed, NotFound, get_booking
+from crb.clock import local_now
 
 
 def reschedule_booking(db, booking_id, user_id, role, room_id, start, end, now=None):
@@ -10,7 +11,7 @@ def reschedule_booking(db, booking_id, user_id, role, room_id, start, end, now=N
     The new slot is checked like a new booking, except that the booking does not clash with
     itself. If the new slot is taken, nothing changes and the old booking stays.
     """
-    now = now or datetime.now()
+    now = now or local_now()
     if start < now.strftime(TIME_FORMAT):
         raise BookingError("You cannot book a time in the past")
     db.begin_write()

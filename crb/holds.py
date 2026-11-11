@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from crb.booking_service import BookingError, NotFound, create_booking, get_booking
+from crb.clock import local_now
 
 HOLD_MINUTES = 2
 STAMP = "%Y-%m-%d %H:%M:%S"
@@ -8,7 +9,7 @@ STAMP = "%Y-%m-%d %H:%M:%S"
 
 def place_hold(db, user_id, room_id, start, end, now=None):
     """Hold a free room for HOLD_MINUTES while the user checks out (CRB-F-021). Returns the booking id."""
-    now = now or datetime.now()
+    now = now or local_now()
     expires = (now + timedelta(minutes=HOLD_MINUTES)).strftime(STAMP)
     return create_booking(
         db, user_id, room_id, start, end, now=now, status="held", hold_expires_at=expires
@@ -20,7 +21,7 @@ def confirm_hold(db, booking_id, user_id, now=None):
 
     Returns True when it was confirmed just now and False when it was already confirmed.
     """
-    now = now or datetime.now()
+    now = now or local_now()
     booking = get_booking(db, booking_id)
     if booking is None or booking["user_id"] != user_id:
         raise NotFound("Booking not found")

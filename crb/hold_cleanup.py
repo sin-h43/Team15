@@ -1,4 +1,5 @@
 from datetime import datetime
+from crb.clock import local_now
 
 
 def release_expired_holds(db, now=None):
@@ -7,7 +8,7 @@ def release_expired_holds(db, now=None):
     Returns how many holds were released. Expired holds never block a room anyway
     (see availability.py); this keeps the data tidy.
     """
-    now_text = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
+    now_text = (now or local_now()).strftime("%Y-%m-%d %H:%M:%S")
     cursor = db.execute(
         "UPDATE bookings SET status = 'expired' WHERE status = 'held' AND hold_expires_at <= ?",
         (now_text,),

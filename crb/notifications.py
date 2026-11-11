@@ -5,6 +5,7 @@ from flask import current_app
 from crb.booking_code import booking_code
 from crb.booking_service import get_booking
 from crb.mailer import MailError, can_deliver_to, deliver, mail_enabled
+from crb.clock import local_now
 
 
 def send_email(db, to_username, subject, body, now=None):
@@ -12,7 +13,7 @@ def send_email(db, to_username, subject, body, now=None):
 
     A failed send never breaks the booking: it is recorded as 'failed' and logged.
     """
-    created = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
+    created = (now or local_now()).strftime("%Y-%m-%d %H:%M:%S")
     cursor = db.execute(
         "INSERT INTO outbox (to_username, subject, body, created_at) VALUES (?, ?, ?, ?)",
         (to_username, subject, body, created),

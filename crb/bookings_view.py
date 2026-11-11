@@ -8,6 +8,7 @@ from crb.db import get_db
 from crb.hold_cleanup import release_expired_holds
 from crb.guards import login_required
 from crb.rooms_repo import get_room
+from crb.clock import local_now
 
 bp = Blueprint("bookings_view", __name__)
 
@@ -32,7 +33,7 @@ def seconds_left(booking):
     if booking["status"] != "held" or not booking["hold_expires_at"]:
         return 0
     expires = datetime.strptime(booking["hold_expires_at"], "%Y-%m-%d %H:%M:%S")
-    return max(0, int((expires - datetime.now()).total_seconds()))
+    return max(0, int((expires - local_now()).total_seconds()))
 
 
 @bp.route("/bookings/<int:booking_id>")

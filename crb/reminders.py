@@ -6,6 +6,7 @@ from crb.booking_code import booking_code
 from crb.booking_service import TIME_FORMAT
 from crb.db import get_db
 from crb.notifications import describe_booking, recipients, send_email
+from crb.clock import local_now
 
 REMINDER_MINUTES = 10
 
@@ -17,7 +18,7 @@ def send_due_reminders(db, now=None):
 
     Each booking is reminded only once. Returns how many bookings were reminded (CRB-F-061).
     """
-    now = now or datetime.now()
+    now = now or local_now()
     current = now.strftime(TIME_FORMAT)
     soon = (now + timedelta(minutes=REMINDER_MINUTES)).strftime(TIME_FORMAT)
     due = db.execute(

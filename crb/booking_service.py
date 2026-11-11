@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from crb.availability import is_room_free
+from crb.clock import local_now
 
 TIME_FORMAT = "%Y-%m-%d %H:%M"
 
@@ -24,7 +25,7 @@ def create_booking(db, user_id, room_id, start, end, now=None,
     The check and the insert run inside ONE transaction (begin_write locks out
     other booking writes), so two people cannot book the same slot at the same time.
     """
-    now = now or datetime.now()
+    now = now or local_now()
     if start < now.strftime(TIME_FORMAT):
         raise BookingError("You cannot book a time in the past")
     db.begin_write()

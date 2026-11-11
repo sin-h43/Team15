@@ -10,3 +10,6 @@ crb.db
 .env.*
 .neon
 node_modules/
+
+.vercel
+.env*
