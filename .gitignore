@@ -4,3 +4,9 @@ __pycache__/
 venv/
 .venv/
 crb.db
+
+# secrets (database connection strings, API keys)
+.env
+.env.*
+.neon
+node_modules/

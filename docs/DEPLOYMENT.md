@@ -1,3 +1,49 @@
+# Deploying to Vercel with a Neon database
+
+This is a checklist. Steps marked **you** need your own accounts or secrets; do them in the browser or in the
+Vercel dashboard and never paste keys into chat, code or git. The app itself is ready: `app.py` (the entry point
+Vercel looks for), `public/static/` (served by Vercel's CDN), `requirements.txt` (runtime only) and `.vercelignore`.
+
+1. **(you) Create a Neon project** at neon.tech and copy the *pooled* connection string
+   (`postgresql://...?sslmode=require`). Or add Neon from Vercel's Marketplace, which sets `DATABASE_URL` for you.
+2. **Create the tables** from your own computer, once (this erases that database, so use a new, empty one):
+   ```bash
+   export DATABASE_URL="postgresql://...neon connection string..."
+   flask --app crb.app init-db --empty --yes
+   flask --app crb.app create-user --role admin      # asks for username, email and password
+   ```
+   On Windows PowerShell use `$env:DATABASE_URL = "..."`.
+3. **(you) Push the repository to GitHub** and import it as a new project in Vercel. Vercel detects Flask from
+   `app.py`. No build command is needed.
+4. **(you) Set environment variables** in Vercel (Project Settings, Environment Variables, Production):
+
+   | Variable | Value |
+   |----------|-------|
+   | `DATABASE_URL` | the Neon connection string |
+   | `CRB_SECRET_KEY` | a long random string, e.g. `python -c "import secrets; print(secrets.token_hex(32))"` |
+   | `CRB_HTTPS` | `1` (secure cookies and HSTS) |
+   | `CRB_TRUST_PROXY` | `1` (use the real client address for rate limits) |
+   | `RESEND_API_KEY` | key from resend.com |
+   | `CRB_MAIL_FROM` | `Conference Rooms <rooms@your-verified-domain>` |
+   | `CRON_SECRET` | a long random string |
+
+   The app refuses to start on Vercel without `DATABASE_URL`, and over HTTPS without a real `CRB_SECRET_KEY`.
+   Changing `CRB_SECRET_KEY` later makes stored attendee names and emails unreadable.
+5. **(you) Resend:** verify a sending domain, otherwise Resend only delivers to your own account address.
+6. **Redeploy** after setting variables, open the site, log in as the admin you created, add rooms, and sign up a
+   second account to check the confirmation email arrives.
+7. **Reminders:** Vercel's free (Hobby) plan can only run cron jobs once a day, with up to an hour of drift, which
+   is too coarse for 10-minute reminders. Options:
+   - **Pro plan:** add a `vercel.json` with
+     `{"crons": [{"path": "/cron/send-reminders", "schedule": "* * * * *"}]}`. Vercel sends
+     `Authorization: Bearer <CRON_SECRET>` automatically.
+   - **Free:** use an external scheduler such as cron-job.org to call
+     `https://<your-site>/cron/send-reminders` every minute with the header `Authorization: Bearer <CRON_SECRET>`.
+
+Verified locally: the whole test suite on SQLite and PostgreSQL, the entry point importing, and static files served
+from `public/static`. **Not verified:** the deployment itself, because it needs your Vercel, Neon and Resend accounts.
+If Vercel does not detect the app, set `[tool.vercel] entrypoint = "app:app"` in a `pyproject.toml`.
+
 # Deployment notes (CRB-SR-001, CRB-NF-004)
 
 ## HTTPS (TLS 1.2 or newer) - CRB-SR-001

@@ -9,8 +9,18 @@ from crb.db import close_db, database_url_from_env, init_db, is_postgres
 from crb.seed import seed
 
 
+def check_production_settings(app):
+    """Refuse to start in a setup that would silently be unsafe or lose data."""
+    if os.environ.get("VERCEL") and not app.config.get("DATABASE_URL"):
+        raise RuntimeError("DATABASE_URL is not set. A serverless host has no disk, so SQLite cannot be used there.")
+    if os.environ.get("CRB_HTTPS") == "1" and app.config["SECRET_KEY"] == "dev-secret-change-me":
+        raise RuntimeError("Set CRB_SECRET_KEY to a long random value before serving over HTTPS.")
+
+
 def create_app(test_config=None):
-    app = Flask(__name__)
+    # Static files live in public/ so Vercel's CDN can serve them; Flask serves the same folder locally.
+    static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "public", "static")
+    app = Flask(__name__, static_folder=static_dir, static_url_path="/static")
     app.config["SECRET_KEY"] = os.environ.get("CRB_SECRET_KEY", "dev-secret-change-me")
     app.config["DATABASE"] = os.path.join(os.path.dirname(app.root_path), "crb.db")
     testing = bool(test_config and test_config.get("TESTING"))
@@ -26,6 +36,8 @@ def create_app(test_config=None):
             app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     if test_config:
         app.config.update(test_config)
+    if not testing:
+        check_production_settings(app)
 
     app.teardown_appcontext(close_db)
 

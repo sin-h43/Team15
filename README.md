@@ -9,7 +9,7 @@ A small web app for booking conference rooms, built for the Software Engineering
 python -m venv venv
 # Windows:  venv\Scripts\activate
 # Mac/Linux: source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 flask --app crb.app init-db      # creates crb.db with demo data (wipes old data!)
 flask --app crb.app run          # open http://127.0.0.1:5000
 ```
@@ -42,7 +42,7 @@ without long-lived connections.)
 
 ## Demo script (5 minutes)
 
-1. Log in as `employee1`, open **Search rooms**, search a day and click **Book** on a room.
+1. Log in as `employee1`, open **Search rooms**, search a day and click **Book** on a room. (Optional: **Sign up** a new user first and confirm the email from **Sent emails**.)
 2. On the booking page the room is held for 2 minutes. Add an attendee (`admin1`), then **Confirm booking**.
 3. Log in as `admin1`: **Sent emails** shows the confirmation sent to both people.
 4. Open the booking, **Move** it to another time, then **Cancel** it. Check **Sent emails** and **Audit log**.
@@ -74,10 +74,11 @@ The suite also runs on Postgres; see `docs/DEPLOYMENT.md`.
 | Recurring bookings   | `crb/recurring.py`, `crb/recurring_routes.py`                                          | CRB-F-040/041 |
 | Room/Resource Admin  | `crb/rooms_repo.py`, `crb/blocks_repo.py`, `crb/admin_routes.py`                        | CRB-F-050/051 |
 | Notifications and reports | `crb/notifications.py`, `crb/cancel_notice.py`, `crb/reminders.py`, `crb/notify_routes.py`, `crb/reports.py`, `crb/report_routes.py` | CRB-F-060/061/062/070 |
+| Accounts, email, deployment | `crb/accounts.py`, `crb/tokens.py`, `crb/user_admin_routes.py`, `crb/mailer.py`, `crb/ratelimit.py`, `crb/cron_routes.py`, `app.py`, `public/static/` | CRB-F-001/002, CRB-F-060/061/062, CRB-SR-001/004/005 |
 
 ## Known limits
 
-- Set `DATABASE_URL` to use Postgres instead of the SQLite file (see `docs/DEPLOYMENT.md`).
+- Set `DATABASE_URL` to use Postgres instead of the SQLite file. Hosting on Vercel + Neon is described in `docs/DEPLOYMENT.md` (the deployment itself has not been tried).
 - Login uses accounts created in this app (sign-up with email confirmation), not company single sign-on.
 - Emails are saved in the `outbox` table (**Sent emails** page). Real delivery needs `RESEND_API_KEY`; without it no mail leaves the machine.
 - HTTPS needs a certificate; see `docs/DEPLOYMENT.md`.
