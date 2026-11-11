@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash
 
 from crb.db import get_db
 from crb.lockout import LOCK_MINUTES, is_locked, record_failure, reset_failures
+from crb.clock import local_now
 
 bp = Blueprint("auth", __name__)
 
@@ -28,7 +29,7 @@ def login():
     user = db.execute(
         "SELECT * FROM users WHERE username = ? OR email = ?", (username, username.lower())
     ).fetchone()
-    now = datetime.now()
+    now = local_now()
 
     if user is not None and is_locked(user, now):
         message = "Account locked for " + str(LOCK_MINUTES) + " minutes. Try again later."

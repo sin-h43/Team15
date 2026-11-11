@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from crb.availability import is_room_free
 from crb.booking_service import BookingError, NotFound
+from crb.clock import local_now
 
 TIME_FORMAT = "%Y-%m-%d %H:%M"
 
@@ -11,7 +12,7 @@ def create_recurring_bookings(db, user_id, room_id, start, end, frequency, now=N
     if frequency not in ("daily", "weekly"):
         raise BookingError("Choose daily or weekly recurrence")
 
-    now = now or datetime.now()
+    now = now or local_now()
     try:
         start_dt = datetime.strptime(start, TIME_FORMAT)
         end_dt = datetime.strptime(end, TIME_FORMAT)

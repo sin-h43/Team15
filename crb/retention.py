@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint
 
 from crb.db import get_db
+from crb.clock import local_now
 
 RETENTION_YEARS = 2
 
@@ -15,7 +16,7 @@ def purge_old_audit_records(db, now=None):
     Nothing younger than 2 years is ever deleted. Bookings are never deleted.
     Returns the number of rows removed.
     """
-    now = now or datetime.now()
+    now = now or local_now()
     cutoff = (now - timedelta(days=365 * RETENTION_YEARS)).strftime("%Y-%m-%d %H:%M:%S")
     cursor = db.execute("DELETE FROM audit_log WHERE created_at < ?", (cutoff,))
     db.commit()

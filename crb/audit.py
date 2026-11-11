@@ -4,6 +4,7 @@ from flask import Blueprint, render_template
 
 from crb.db import get_db
 from crb.guards import role_required
+from crb.clock import local_now
 
 bp = Blueprint("audit", __name__)
 
@@ -12,7 +13,7 @@ def log_action(db, actor, action, detail):
     """Record who did what (CRB-SR-003). Call this after every admin action."""
     db.execute(
         "INSERT INTO audit_log (actor, action, detail, created_at) VALUES (?, ?, ?, ?)",
-        (actor, action, detail, datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+        (actor, action, detail, local_now().strftime("%Y-%m-%d %H:%M:%S")),
     )
     db.commit()
 

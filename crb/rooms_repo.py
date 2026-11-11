@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from crb.db import get_db
+from crb.clock import local_now
 
 
 def create_room(name, location, capacity, equipment=""):
@@ -86,7 +87,7 @@ def search_available_rooms(start_time, end_time, now=None):
     do not overlap. Cancelled bookings do not block a room.
     """
     db = get_db()
-    now_text = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
+    now_text = (now or local_now()).strftime("%Y-%m-%d %H:%M:%S")
     rows = db.execute(
         """
         SELECT r.*

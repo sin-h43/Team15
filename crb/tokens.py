@@ -6,6 +6,7 @@ database cannot be used to take over an account.
 import hashlib
 import secrets
 from datetime import datetime, timedelta
+from crb.clock import local_now
 
 STAMP = "%Y-%m-%d %H:%M:%S"
 LIFETIME_HOURS = {"verify": 48, "reset": 1}
@@ -17,7 +18,7 @@ def _hash(raw):
 
 def issue_token(db, user_id, kind, now=None):
     """Create a new token for the user (older ones of that kind stop working). Returns the raw token."""
-    now = now or datetime.now()
+    now = now or local_now()
     raw = secrets.token_urlsafe(32)
     expires = (now + timedelta(hours=LIFETIME_HOURS[kind])).strftime(STAMP)
     db.execute("DELETE FROM auth_tokens WHERE user_id = ? AND kind = ?", (user_id, kind))
@@ -31,7 +32,7 @@ def issue_token(db, user_id, kind, now=None):
 
 def find_token_user(db, raw, kind, now=None):
     """The user id a still-valid token belongs to, or None. Does not use the token up."""
-    now = now or datetime.now()
+    now = now or local_now()
     row = db.execute(
         "SELECT user_id FROM auth_tokens WHERE token_hash = ? AND kind = ? AND expires_at > ?",
         (_hash(raw or ""), kind, now.strftime(STAMP)),

@@ -1,4 +1,5 @@
 from datetime import datetime
+from crb.clock import local_now
 
 
 def is_room_free(db, room_id, start, end, ignore_booking_id=None, now=None):
@@ -13,7 +14,7 @@ def is_room_free(db, room_id, start, end, ignore_booking_id=None, now=None):
     booking that ends exactly when another starts does NOT overlap.
     Times are 'YYYY-MM-DD HH:MM' strings, so normal string comparison works.
     """
-    now_text = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
+    now_text = (now or local_now()).strftime("%Y-%m-%d %H:%M:%S")
     booked = db.execute(
         "SELECT 1 FROM bookings "
         "WHERE room_id = ? AND id != ? AND start_time < ? AND end_time > ? "

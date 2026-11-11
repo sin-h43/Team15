@@ -2,6 +2,7 @@ from datetime import datetime
 
 from crb.availability import is_room_free
 from crb.booking_service import BookingError, NotAllowed, NotFound, get_booking
+from crb.clock import local_now
 
 
 def cancel_booking(db, booking_id, user_id, role):
@@ -45,7 +46,7 @@ def edit_occurrence(db, booking_id, user_id, role, start, end, now=None):
     if end_dt <= start_dt:
         raise BookingError("End time must be after start time")
 
-    now = now or datetime.now()
+    now = now or local_now()
     if start_dt <= now:
         raise BookingError("You cannot book a time in the past")
 
