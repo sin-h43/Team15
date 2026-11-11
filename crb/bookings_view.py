@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Blueprint, abort, render_template, session
 
 from crb.booking_code import booking_code 
@@ -25,10 +27,19 @@ def can_view(db, booking, user_id, role):
     return invited is not None
 
 
+def seconds_left(booking):
+    """Whole seconds until a hold runs out (0 when it has, or when the booking is not held)."""
+    if booking["status"] != "held" or not booking["hold_expires_at"]:
+        return 0
+    expires = datetime.strptime(booking["hold_expires_at"], "%Y-%m-%d %H:%M:%S")
+    return max(0, int((expires - datetime.now()).total_seconds()))
+
+
 @bp.route("/bookings/<int:booking_id>")
 @login_required
 def booking_page(booking_id):
     db = get_db()
+    release_expired_holds(db)
     booking = get_booking(db, booking_id)
     if booking is None:
         abort(404)
@@ -43,6 +54,7 @@ def booking_page(booking_id):
         owner=owner["username"],
         code=booking_code(booking_id),
         can_manage=can_manage(booking, user_id, role),
+        seconds_left=seconds_left(booking),
     )
 
 

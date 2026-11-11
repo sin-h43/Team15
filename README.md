@@ -33,6 +33,13 @@ flask --app crb.app run          # open http://127.0.0.1:5000
 - Create a confirmed account (for example the first admin on a fresh database) with
   `flask --app crb.app create-user`.
 
+## Live availability
+
+The room search refreshes itself every few seconds, so a room someone else just booked disappears
+and a freed room appears without reloading. A held booking shows a countdown and reloads when the
+hold runs out. (Updates are polled from `/rooms/search?...&format=json`, which also works on hosts
+without long-lived connections.)
+
 ## Demo script (5 minutes)
 
 1. Log in as `employee1`, open **Search rooms**, search a day and click **Book** on a room.

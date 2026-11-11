@@ -35,6 +35,8 @@
 {% endif %}
 
 {% if searched and not error %}
+<p class="lead" id="live-status">Live - updates every few seconds</p>
+<div id="live-results" data-query="{{ request.query_string.decode() }}">
   {% if rooms %}
   <div class="table-wrap">
   <table>
@@ -55,5 +57,7 @@
   {% else %}
   <div class="card empty">No rooms are available for those filters.</div>
   {% endif %}
+</div>
 {% endif %}
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='live.js') }}"></script>{% endblock %}
