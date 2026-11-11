@@ -11,6 +11,7 @@ from werkzeug.security import generate_password_hash
 from crb.db import get_db
 from crb.lockout import reset_failures
 from crb.notifications import send_email
+from crb.ratelimit import allow
 from crb.tokens import find_token_user, issue_token, use_token
 from crb.validators import ValidationError, parse_email, parse_password, parse_username
 
@@ -39,6 +40,20 @@ def find_by_email(db, email):
     return db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
 
+def too_many_requests():
+    return message("Too many requests", "Please wait a while before trying again.", 429)
+
+
+def ip_allowed(db, kind):
+    """At most 10 sign-up / reset requests an hour from one network address."""
+    return allow(db, kind + ":ip:" + (request.remote_addr or "?"), 10, 60)
+
+
+def email_allowed(db, kind, email):
+    """At most 3 emails an hour to one address (silent, so it cannot be used to probe accounts)."""
+    return allow(db, kind + ":email:" + email, 3, 60)
+
+
 def message(title, text, status=200, back_url="/login", back_text="Back to log in"):
     page = render_template("message.html", title=title, message=text, back_url=back_url, back_text=back_text)
     return page, status
@@ -62,6 +77,8 @@ def signup():
     except ValidationError as problem:
         return render_template("signup.html", error=str(problem), values=values), 400
 
+    if not ip_allowed(db, "signup"):
+        return too_many_requests()
     if find_by_email(db, email) is None:
         cursor = db.execute(
             "INSERT INTO users (username, password_hash, role, email, email_verified) "
@@ -70,8 +87,9 @@ def signup():
         )
         db.commit()
         user = db.execute("SELECT * FROM users WHERE id = ?", (cursor.lastrowid,)).fetchone()
-        mail_link(db, user, "verify", "accounts.verify", "Confirm your email address",
-                  "Welcome to Conference Room Booking. Confirm your email address to activate your account:")
+        if email_allowed(db, "verify", email):
+            mail_link(db, user, "verify", "accounts.verify", "Confirm your email address",
+                      "Welcome to Conference Room Booking. Confirm your email address to activate your account:")
     # The same answer whether or not the address was already registered (no account probing).
     return message("Check your email", "We sent a confirmation link to " + email
                    + ". Open it to activate your account.")
@@ -99,8 +117,10 @@ def resend_verification():
     except ValidationError as problem:
         return render_template("email_form.html", title="Send a new confirmation link",
                                error=str(problem), button="Send link"), 400
+    if not ip_allowed(db, "verify"):
+        return too_many_requests()
     user = find_by_email(db, email)
-    if user is not None and not user["email_verified"]:
+    if user is not None and not user["email_verified"] and email_allowed(db, "verify", email):
         mail_link(db, user, "verify", "accounts.verify", "Confirm your email address",
                   "Confirm your email address to activate your account:")
     return message("Check your email", GENERIC_MAIL_NOTICE)
@@ -116,8 +136,10 @@ def forgot():
     except ValidationError as problem:
         return render_template("email_form.html", title="Reset your password",
                                error=str(problem), button="Send reset link"), 400
+    if not ip_allowed(db, "reset"):
+        return too_many_requests()
     user = find_by_email(db, email)
-    if user is not None:
+    if user is not None and email_allowed(db, "reset", email):
         mail_link(db, user, "reset", "accounts.reset", "Reset your password",
                   "Use this link within 1 hour to choose a new password:")
     return message("Check your email", GENERIC_MAIL_NOTICE)

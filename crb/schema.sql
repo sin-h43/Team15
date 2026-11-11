@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS rate_limit;
 DROP TABLE IF EXISTS auth_tokens;
 DROP TABLE IF EXISTS outbox;
 DROP TABLE IF EXISTS attendees;
@@ -83,7 +84,16 @@ CREATE TABLE outbox (
     to_username TEXT NOT NULL,
     subject TEXT NOT NULL,
     body TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    -- stored: kept here only; sent: delivered by the mail service; failed: the mail service refused it
+    status TEXT NOT NULL DEFAULT 'stored' CHECK (status IN ('stored', 'sent', 'failed'))
+);
+
+CREATE TABLE rate_limit (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bucket TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE INDEX idx_rate_limit_bucket ON rate_limit (bucket, created_at);
 CREATE INDEX idx_bookings_room_time ON bookings (room_id, start_time, end_time);
 CREATE INDEX idx_blocks_room_time ON maintenance_blocks (room_id, start_time, end_time);

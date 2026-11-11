@@ -2,17 +2,18 @@
 {% block title %}Outbox{% endblock %}
 {% block content %}
 <h1>Sent emails</h1>
-<p class="lead">The latest 100 notifications the system has sent.</p>
+<p class="lead">The latest 100 notifications. "sent" means delivered by the mail service; "stored" means kept here only (no mail service configured, or a demo address).</p>
 {% if mails %}
 <div class="table-wrap">
 <table>
-  <thead><tr><th>Time</th><th>To</th><th>Subject</th><th>Message</th></tr></thead>
+  <thead><tr><th>Time</th><th>To</th><th>Subject</th><th>Status</th><th>Message</th></tr></thead>
   <tbody>
   {% for mail in mails %}
   <tr>
     <td>{{ mail["row"]["created_at"] }}</td>
     <td>{{ mail["address"] }}</td>
     <td>{{ mail["row"]["subject"] }}</td>
+    <td><span class="badge badge-{{ {'sent': 'confirmed', 'failed': 'cancelled'}.get(mail['row']['status'], 'expired') }}">{{ mail["row"]["status"] }}</span></td>
     <td><pre>{{ mail["row"]["body"] }}</pre></td>
   </tr>
   {% endfor %}

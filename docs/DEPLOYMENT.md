@@ -33,6 +33,29 @@ flask --app crb.app purge-old-logs
 
 Bookings are never deleted.
 
+## Real email (Resend)
+
+Set these environment variables to send real email (CRB-F-060/061/062, sign-up and reset links):
+
+| Variable | Meaning |
+|----------|---------|
+| `RESEND_API_KEY` | API key from resend.com. Without it nothing is sent; emails are only saved in the outbox. |
+| `CRB_MAIL_FROM` | Sender, e.g. `Conference Rooms <rooms@yourdomain.com>`. Defaults to Resend's test sender `onboarding@resend.dev`, which only delivers to your own Resend account address. To email anyone, verify a domain in Resend and use an address on it. |
+
+Every email is still saved in the outbox, with a status: `sent`, `failed` (the service refused it; the
+booking is not affected) or `stored` (no key, or a demo `.example` address). Never put the key in the code
+or in git; keep it in the environment.
+
+Abuse limits: at most 3 sign-up/reset emails an hour per address and 10 requests an hour per network address.
+Behind a proxy such as Vercel set `CRB_TRUST_PROXY=1` so the real client address is used.
+
+## Reminders (scheduler endpoint)
+
+Hosts without a long-running process cannot run `send-reminders` themselves. Set `CRON_SECRET` and have a
+scheduler (for example Vercel Cron, or any pinger) call `GET /cron/send-reminders` with the header
+`Authorization: Bearer <CRON_SECRET>` every minute. It sends the due reminders and releases expired holds.
+Without `CRON_SECRET` the endpoint does not exist (404).
+
 ## Reminders
 
 Reminder emails are sent by a job. Run it every minute (cron on Linux/Mac, Task Scheduler on Windows):

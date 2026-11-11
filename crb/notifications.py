@@ -1,16 +1,37 @@
 from datetime import datetime
 
+from flask import current_app
+
 from crb.booking_code import booking_code
 from crb.booking_service import get_booking
+from crb.mailer import MailError, can_deliver_to, deliver, mail_enabled
 
 
 def send_email(db, to_username, subject, body, now=None):
-    """Save an email in the outbox table (a real mail server would be plugged in here)."""
+    """Save an email in the outbox table and, when a mail service is configured, send it.
+
+    A failed send never breaks the booking: it is recorded as 'failed' and logged.
+    """
     created = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
-    db.execute(
+    cursor = db.execute(
         "INSERT INTO outbox (to_username, subject, body, created_at) VALUES (?, ?, ?, ?)",
         (to_username, subject, body, created),
     )
+    db.commit()
+    if not mail_enabled():
+        return
+    from crb.attendees import email_for  # imported here: attendees imports booking code too
+
+    address = email_for(to_username, db)
+    if not can_deliver_to(address):
+        return
+    try:
+        deliver(address, subject, body)
+        status = "sent"
+    except MailError as problem:
+        current_app.logger.warning("email to %s failed: %s", to_username, problem)
+        status = "failed"
+    db.execute("UPDATE outbox SET status = ? WHERE id = ?", (status, cursor.lastrowid))
     db.commit()
 
 

@@ -15,6 +15,15 @@ def create_app(test_config=None):
     app.config["DATABASE"] = os.path.join(os.path.dirname(app.root_path), "crb.db")
     testing = bool(test_config and test_config.get("TESTING"))
     app.config["DATABASE_URL"] = database_url_from_env(testing)
+    # Real email and the cron endpoint are configured from the environment (never in tests).
+    if not testing:
+        app.config["RESEND_API_KEY"] = os.environ.get("RESEND_API_KEY") or None
+        app.config["MAIL_FROM"] = os.environ.get("CRB_MAIL_FROM") or None
+        app.config["CRON_SECRET"] = os.environ.get("CRON_SECRET") or None
+        if os.environ.get("CRB_TRUST_PROXY") == "1":  # behind a proxy such as Vercel
+            from werkzeug.middleware.proxy_fix import ProxyFix
+
+            app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     if test_config:
         app.config.update(test_config)
 
@@ -88,6 +97,8 @@ def create_app(test_config=None):
     app.register_blueprint(reminders_bp)
     from crb.notify_routes import bp as notify_bp
     app.register_blueprint(notify_bp)
+    from crb.cron_routes import bp as cron_bp
+    app.register_blueprint(cron_bp)
     # SLOT-REPORT
     from crb.report_routes import bp as report_bp
     app.register_blueprint(report_bp)
