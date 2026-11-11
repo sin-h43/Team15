@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>Create an account</h1>
+  <p class="lead">We will email you a link to confirm your address.</p>
+  {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+  <form method="post" action="/signup">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">Username <span class="hint">3-30 letters, digits, dots, dashes or underscores</span>
+      <input name="username" autocomplete="username" required value="{{ values.get('username', '') }}"></label>
+    <label class="field">Email <input name="email" type="email" autocomplete="email" required value="{{ values.get('email', '') }}"></label>
+    <label class="field">Password <span class="hint">At least 8 characters</span>
+      <input name="password" type="password" autocomplete="new-password" required></label>
+    <label class="field">Confirm password <input name="confirm" type="password" autocomplete="new-password" required></label>
+    <div class="actions"><button type="submit">Sign up</button> <a href="/login">I already have an account</a></div>
+  </form>
+</div>
+{% endblock %}

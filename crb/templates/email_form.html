@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>{{ title }}</h1>
+  <p class="lead">Enter the email address of your account.</p>
+  {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">Email <input name="email" type="email" autocomplete="email" required autofocus></label>
+    <div class="actions"><button type="submit">{{ button }}</button> <a href="/login">Back to log in</a></div>
+  </form>
+</div>
+{% endblock %}

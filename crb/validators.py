@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 TIME_FORMAT = "%Y-%m-%d %H:%M"
@@ -44,3 +45,30 @@ def parse_equipment(values):
         if item not in ALLOWED_EQUIPMENT:
             raise ValidationError("Unknown equipment: " + item)
     return list(values)
+
+USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]{3,30}$")
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+MIN_PASSWORD_LENGTH = 8
+
+
+def parse_username(value):
+    text = (value or "").strip()
+    if not USERNAME_PATTERN.match(text):
+        raise ValidationError("Username must be 3-30 letters, digits, dots, dashes or underscores")
+    return text
+
+
+def parse_email(value):
+    text = (value or "").strip().lower()
+    if len(text) > 254 or not EMAIL_PATTERN.match(text):
+        raise ValidationError("Enter a valid email address")
+    return text
+
+
+def parse_password(value):
+    text = value or ""
+    if len(text) < MIN_PASSWORD_LENGTH:
+        raise ValidationError("Password must be at least " + str(MIN_PASSWORD_LENGTH) + " characters")
+    if len(text) > 200:
+        raise ValidationError("Password is too long")
+    return text

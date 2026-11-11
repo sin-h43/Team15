@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Choose a new password{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>Choose a new password</h1>
+  {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">New password <span class="hint">At least 8 characters</span>
+      <input name="password" type="password" autocomplete="new-password" required autofocus></label>
+    <label class="field">Confirm password <input name="confirm" type="password" autocomplete="new-password" required></label>
+    <button type="submit">Change password</button>
+  </form>
+</div>
+{% endblock %}

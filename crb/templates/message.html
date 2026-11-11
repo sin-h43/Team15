@@ -4,6 +4,6 @@
 <div class="card medium">
   <h1>{{ title }}</h1>
   <p>{{ message }}</p>
-  <a class="button secondary" href="/rooms/search">Back to room search</a>
+  <a class="button secondary" href="{{ back_url or '/rooms/search' }}">{{ back_text or 'Back to room search' }}</a>
 </div>
 {% endblock %}

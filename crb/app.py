@@ -44,6 +44,11 @@ def create_app(test_config=None):
     from crb.auth import bp as auth_bp
     app.register_blueprint(auth_bp)
 
+    from crb.user_admin_routes import bp as user_admin_bp
+    app.register_blueprint(user_admin_bp)
+    from crb.accounts import bp as accounts_bp
+    app.register_blueprint(accounts_bp)
+
     # SLOT-AUDIT
     from crb.audit import bp as audit_bp
     app.register_blueprint(audit_bp)

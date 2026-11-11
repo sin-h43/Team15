@@ -42,6 +42,17 @@ flask --app crb.app send-reminders
 ```
 
 
+## Accounts
+
+Sign-up, email confirmation and password reset use one-time links (stored only as hashes). Until a mail
+service is connected the links are saved in the `outbox` table and printed to the server console.
+On a fresh database create the first admin with:
+
+```bash
+flask --app crb.app init-db --empty
+flask --app crb.app create-user --role admin
+```
+
 ## Database: SQLite or Postgres (ADR-07)
 
 By default the app uses the SQLite file `crb.db`. For hosting (for example on Vercel, which has no

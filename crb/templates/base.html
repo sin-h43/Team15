@@ -20,6 +20,7 @@
       {% endif %}
       {% if session.get("role") == "admin" %}
       <a href="/admin/rooms" {% if path.startswith("/admin/rooms") %}class="active"{% endif %}>Rooms</a>
+      <a href="/admin/users" {% if path.startswith("/admin/users") %}class="active"{% endif %}>Users</a>
       <a href="/admin/blocks" {% if path.startswith("/admin/blocks") %}class="active"{% endif %}>Maintenance</a>
       <a href="/reports/utilisation" {% if path.startswith("/reports") %}class="active"{% endif %}>Report</a>
       <a href="/outbox" {% if path == "/outbox" %}class="active"{% endif %}>Sent emails</a>
@@ -35,7 +36,7 @@
       <span>{{ session["username"] }} <span class="role">{{ session["role"] }}</span></span>
       <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Log out</button></form>
       {% else %}
-      <a href="/login" style="color:#fff">Log in</a>
+      <a href="/login" style="color:#fff">Log in</a> <a href="/signup" style="color:#fff">Sign up</a>
       {% endif %}
     </div>
   </div>

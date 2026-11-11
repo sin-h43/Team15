@@ -22,6 +22,17 @@ flask --app crb.app run          # open http://127.0.0.1:5000
 | admin1     | admin123   | admin    | everything above for any booking, plus rooms, blocks, audit log, report, sent emails |
 | auditor1   | aud123     | auditor  | read-only: audit log and bookings                               |
 
+## Real accounts
+
+- Anyone can **Sign up** (username, email, password of at least 8 characters). The account stays inactive until
+  the emailed confirmation link is opened. **Forgot password?** works the same way (link valid for 1 hour).
+- There is no mail server yet, so emails are saved in the outbox: log in as `admin1` and open **Sent emails**,
+  or read the link printed in the terminal where `flask run` is running.
+- New sign-ups are employees. An admin changes roles on the **Users** page.
+- Log in with either username or email. Attendees can be invited by username or email.
+- Create a confirmed account (for example the first admin on a fresh database) with
+  `flask --app crb.app create-user`.
+
 ## Demo script (5 minutes)
 
 1. Log in as `employee1`, open **Search rooms**, search a day and click **Book** on a room.
@@ -60,7 +71,7 @@ The suite also runs on Postgres; see `docs/DEPLOYMENT.md`.
 ## Known limits
 
 - Set `DATABASE_URL` to use Postgres instead of the SQLite file (see `docs/DEPLOYMENT.md`).
-- Login uses local accounts, not company single sign-on.
+- Login uses accounts created in this app (sign-up with email confirmation), not company single sign-on.
 - Emails are saved in the `outbox` table and shown on the **Sent emails** page; no real mail is sent.
 - HTTPS needs a certificate; see `docs/DEPLOYMENT.md`.
 - Availability, load and "new office by configuration" targets (CRB-NF-002/003/006) are design goals, not tested here.

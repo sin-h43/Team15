@@ -25,7 +25,9 @@ def login():
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
     db = get_db()
-    user = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    user = db.execute(
+        "SELECT * FROM users WHERE username = ? OR email = ?", (username, username.lower())
+    ).fetchone()
     now = datetime.now()
 
     if user is not None and is_locked(user, now):
@@ -36,6 +38,10 @@ def login():
         if user is not None:
             record_failure(db, user, now)
         return render_template("login.html", error="Invalid username or password."), 401
+
+    if not user["email_verified"]:
+        message = "Please confirm your email address first. Use the link we emailed you."
+        return render_template("login.html", error=message, unverified=True), 403
 
     reset_failures(db, user)
     session.clear()
