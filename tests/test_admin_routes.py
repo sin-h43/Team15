@@ -40,6 +40,7 @@ def login_as(client, role="admin"):
     with client.session_transaction() as session:
         session["user_id"] = user_id
         session["role"] = user_role
+        session["username"] = user_role + "1"
 
 
 def room_form(**overrides):
@@ -337,12 +338,12 @@ def test_create_room_updates_list_and_records_audit(client, app):
             SELECT actor, action, detail
             FROM audit_log
             WHERE action = ?
-            ORDER BY rowid DESC
+            ORDER BY id DESC
             LIMIT 1
             """,
             ("room_created",),
         ).fetchone()
 
         assert audit is not None
-        assert audit["actor"] == "admin"
+        assert audit["actor"] == "admin1"
         assert "created" in audit["detail"]

@@ -6,13 +6,17 @@ class AttendeeError(BookingError):
     """The attendee cannot be added. The message is safe to show to the user."""
 
 
-def email_for(username):
-    """Company address of an employee (there is no separate email column yet)."""
+def email_for(username, db=None):
+    """Email address of an employee: the one on their account, else a company-style default."""
+    if db is not None:
+        row = db.execute("SELECT email FROM users WHERE username = ?", (username,)).fetchone()
+        if row is not None and row["email"]:
+            return row["email"]
     return username + "@crb.example"
 
 
 def add_attendee(db, booking_id, username):
-    """Invite one internal employee (CRB-F-022). Returns the new attendee's user id.
+    """Invite one internal employee by username or email (CRB-F-022). Returns the new attendee's user id.
 
     The attendee's name and email are stored encrypted (CRB-SR-006).
     """
@@ -21,7 +25,10 @@ def add_attendee(db, booking_id, username):
         raise NotFound("Booking not found")
     if booking["status"] not in ("held", "confirmed"):
         raise AttendeeError("Attendees can only be added to an active booking")
-    user = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    user = db.execute(
+        "SELECT * FROM users WHERE (username = ? OR email = ?) AND email_verified = 1",
+        (username, username.lower()),
+    ).fetchone()
     if user is None:
         raise AttendeeError("Unknown employee: " + username)
     already = db.execute(
@@ -31,7 +38,7 @@ def add_attendee(db, booking_id, username):
         raise AttendeeError(username + " is already an attendee")
     db.execute(
         "INSERT INTO attendees (booking_id, user_id, name, email) VALUES (?, ?, ?, ?)",
-        (booking_id, user["id"], encrypt_text(user["username"]), encrypt_text(email_for(user["username"]))),
+        (booking_id, user["id"], encrypt_text(user["username"]), encrypt_text(email_for(user["username"], db))),
     )
     db.commit()
     return user["id"]

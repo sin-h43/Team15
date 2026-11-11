@@ -45,8 +45,7 @@ def create_recurring_bookings(db, user_id, room_id, start, end, frequency, now=N
         current_start += step
         current_end += step
 
-    db.commit()
-    db.execute("BEGIN IMMEDIATE")
+    db.begin_write()
     try:
         # Allocate a series ID while holding the write transaction.
         series_id = db.execute(

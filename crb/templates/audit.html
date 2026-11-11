@@ -2,9 +2,12 @@
 {% block title %}Audit log{% endblock %}
 {% block content %}
 <h1>Audit log</h1>
+<p class="lead">Administrative actions, newest first.</p>
 {% if rows %}
-<table border="1" cellpadding="4">
-  <tr><th>Time</th><th>Who</th><th>Action</th><th>Detail</th></tr>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Time</th><th>Who</th><th>Action</th><th>Detail</th></tr></thead>
+  <tbody>
   {% for row in rows %}
   <tr>
     <td>{{ row["created_at"] }}</td>
@@ -13,8 +16,10 @@
     <td>{{ row["detail"] }}</td>
   </tr>
   {% endfor %}
+  </tbody>
 </table>
+</div>
 {% else %}
-<p>No admin actions have been recorded yet.</p>
+<div class="card empty">No admin actions have been recorded yet.</div>
 {% endif %}
 {% endblock %}

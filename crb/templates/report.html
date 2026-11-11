@@ -2,17 +2,22 @@
 {% block title %}Utilisation report{% endblock %}
 {% block content %}
 <h1>Room utilisation report</h1>
-<form method="get" action="/reports/utilisation">
-  <p>
-    <label>From <input type="date" name="start" value="{{ start }}" required></label>
-    <label>To <input type="date" name="end" value="{{ end }}" required></label>
+<p class="lead">Confirmed bookings and booked hours per room.</p>
+<div class="card">
+  <form method="get" action="/reports/utilisation">
+    <div class="row">
+      <label class="field">From <input type="date" name="start" value="{{ start }}" required></label>
+      <label class="field">To <input type="date" name="end" value="{{ end }}" required></label>
+    </div>
     <button type="submit">Run report</button>
-  </p>
-</form>
-{% if error %}<p><strong>{{ error }}</strong></p>{% endif %}
+  </form>
+</div>
+{% if error %}<div class="alert error" role="alert"><strong>{{ error }}</strong></div>{% endif %}
 {% if rows is not none %}
-<table border="1" cellpadding="4">
-  <tr><th>Room</th><th>Location</th><th>Bookings</th><th>Booked hours</th></tr>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Room</th><th>Location</th><th>Bookings</th><th>Booked hours</th></tr></thead>
+  <tbody>
   {% for row in rows %}
   <tr>
     <td>{{ row["room"] }}</td>
@@ -21,6 +26,8 @@
     <td>{{ row["hours"] }}</td>
   </tr>
   {% endfor %}
+  </tbody>
 </table>
+</div>
 {% endif %}
 {% endblock %}

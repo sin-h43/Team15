@@ -6,7 +6,6 @@ from crb.guards import login_required
 from crb.holds import confirm_hold, place_hold
 from crb.rooms_repo import get_room
 from crb.validators import ValidationError, parse_range
-from crb.notifications import notify_booking_created
 
 bp = Blueprint("booking", __name__)
 

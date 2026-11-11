@@ -1,9 +1,8 @@
-import sqlite3
 
 import pytest
 from flask import Flask
 
-from crb.db import close_db, get_db, init_db
+from crb.db import IntegrityErrors, close_db, get_db, init_db
 
 
 def make_app(tmp_path):
@@ -52,7 +51,7 @@ def test_unknown_booking_status_is_rejected(tmp_path):
         init_db()
         db = get_db()
         add_basics(db)
-        with pytest.raises(sqlite3.IntegrityError):
+        with pytest.raises(IntegrityErrors):
             db.execute(
                 "INSERT INTO bookings (room_id, user_id, start_time, end_time, status) "
                 "VALUES (1, 1, '2030-01-01 10:00', '2030-01-01 11:00', 'maybe')"
@@ -70,7 +69,7 @@ def test_same_person_cannot_be_added_twice_to_a_booking(tmp_path):
             "VALUES (1, 1, '2030-01-01 10:00', '2030-01-01 11:00')"
         )
         db.execute("INSERT INTO attendees (booking_id, user_id, name, email) VALUES (1, 1, 'u1', 'e')")
-        with pytest.raises(sqlite3.IntegrityError):
+        with pytest.raises(IntegrityErrors):
             db.execute("INSERT INTO attendees (booking_id, user_id, name, email) VALUES (1, 1, 'u1', 'e')")
 
 
@@ -80,5 +79,5 @@ def test_attendee_needs_an_existing_booking(tmp_path):
         init_db()
         db = get_db()
         add_basics(db)
-        with pytest.raises(sqlite3.IntegrityError):
+        with pytest.raises(IntegrityErrors):
             db.execute("INSERT INTO attendees (booking_id, user_id, name, email) VALUES (99, 1, 'u1', 'e')")

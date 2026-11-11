@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Log in{% endblock %}
 {% block content %}
-<h1>Log in</h1>
-{% if error %}<p><strong>{{ error }}</strong></p>{% endif %}
-<form method="post" action="/login">
-  <p><label>Username <input name="username" required></label></p>
-  <p><label>Password <input name="password" type="password" required></label></p>
-  <p><button type="submit">Log in</button></p>
-</form>
+<div class="card narrow">
+  <h1>Log in</h1>
+  <p class="lead">Sign in with your username or email.</p>
+  {% if error %}<div class="alert error" role="alert">{{ error }}{% if unverified %} <a href="/resend-verification">Send a new link</a>{% endif %}</div>{% endif %}
+  <form method="post" action="/login">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">Username or email <input name="username" autocomplete="username" required autofocus></label>
+    <label class="field">Password <input name="password" type="password" autocomplete="current-password" required></label>
+    <div class="actions"><button type="submit">Log in</button> <a href="/forgot">Forgot password?</a></div>
+  </form>
+  <p class="lead" style="margin:18px 0 0">New here? <a href="/signup">Create an account</a></p>
+</div>
 {% endblock %}

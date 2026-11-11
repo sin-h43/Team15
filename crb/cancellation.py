@@ -1,9 +1,7 @@
-
-from crb.booking_service import BookingError, NotAllowed, NotFound, get_booking
 from datetime import datetime
 
 from crb.availability import is_room_free
-from crb.validators import TIME_FORMAT
+from crb.booking_service import BookingError, NotAllowed, NotFound, get_booking
 
 
 def cancel_booking(db, booking_id, user_id, role):
@@ -25,26 +23,11 @@ def cancel_booking(db, booking_id, user_id, role):
 
 def cancel_occurrence(db, booking_id, user_id, role):
     """Cancel only the selected occurrence, never the whole recurring series."""
-    booking = get_booking(db, booking_id)
-    if booking is None:
-        raise NotFound("Booking not found")
-    if booking["user_id"] != user_id and role != "admin":
-        raise NotAllowed("Only the owner or an admin can cancel this booking")
-    if booking["status"] not in ("held", "confirmed"):
-        raise BookingError("This booking is already " + booking["status"])
+    cancel_booking(db, booking_id, user_id, role)
 
-    db.execute(
-        "UPDATE bookings SET status = 'cancelled', hold_expires_at = NULL WHERE id = ?",
-        (booking_id,),
-    )
-    db.commit()
 
 def edit_occurrence(db, booking_id, user_id, role, start, end, now=None):
     """Edit one booking occurrence without changing its recurring series."""
-    from datetime import datetime
-
-    from crb.availability import is_room_free
-
     booking = get_booking(db, booking_id)
     if booking is None:
         raise NotFound("Booking not found")
@@ -66,8 +49,7 @@ def edit_occurrence(db, booking_id, user_id, role, start, end, now=None):
     if start_dt <= now:
         raise BookingError("You cannot book a time in the past")
 
-    db.commit()
-    db.execute("BEGIN IMMEDIATE")
+    db.begin_write()
     try:
         if not is_room_free(
             db,
@@ -80,7 +62,7 @@ def edit_occurrence(db, booking_id, user_id, role, start, end, now=None):
             raise BookingError("That room is already booked for this time")
 
         db.execute(
-            "UPDATE bookings SET start_time = ?, end_time = ? WHERE id = ?",
+            "UPDATE bookings SET start_time = ?, end_time = ?, reminder_sent = 0 WHERE id = ?",
             (start, end, booking_id),
         )
         db.commit()

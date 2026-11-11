@@ -3,15 +3,15 @@
 {% block title %}Recurring Bookings{% endblock %}
 
 {% block content %}
-<h1>Create Recurring Booking</h1>
+<div class="card medium">
+  <h1>Create Recurring Booking</h1>
+  <p class="lead">Occurrences are created for the next 90 days. Dates that clash are skipped and listed.</p>
 
-{% if error %}
-<p><strong>{{ error }}</strong></p>
-{% endif %}
+  {% if error %}<div class="alert error" role="alert"><strong>{{ error }}</strong></div>{% endif %}
 
-<form method="post" action="/recurring">
-  <p>
-    <label>Room
+  <form method="post" action="/recurring">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">Room
       <select name="room_id" required>
         {% for room in rooms %}
         <option value="{{ room['id'] }}"
@@ -21,38 +21,18 @@
         {% endfor %}
       </select>
     </label>
-  </p>
-
-  <p>
-    <label>Date
-      <input type="date" name="date"
-        value="{{ values.get('date', '') }}" required>
-    </label>
-  </p>
-
-  <p>
-    <label>Start time
-      <input type="time" name="start"
-        value="{{ values.get('start', '') }}" required>
-    </label>
-
-    <label>End time
-      <input type="time" name="end"
-        value="{{ values.get('end', '') }}" required>
-    </label>
-  </p>
-
-  <p>
-    <label>Repeat
+    <label class="field">First date <input type="date" name="date" value="{{ values.get('date', '') }}" required></label>
+    <div class="row">
+      <label class="field">Start time <input type="time" name="start" value="{{ values.get('start', '') }}" required></label>
+      <label class="field">End time <input type="time" name="end" value="{{ values.get('end', '') }}" required></label>
+    </div>
+    <label class="field">Repeat
       <select name="frequency" required>
-        <option value="daily">Daily</option>
-        <option value="weekly">Weekly</option>
+        <option value="daily" {% if values.get('frequency') == 'daily' %}selected{% endif %}>Daily</option>
+        <option value="weekly" {% if values.get('frequency') == 'weekly' %}selected{% endif %}>Weekly</option>
       </select>
     </label>
-  </p>
-
-  <button type="submit">Create recurring bookings</button>
-</form>
-
-<p><a href="/my-bookings">My bookings</a></p>
+    <div class="actions"><button type="submit">Create recurring bookings</button> <a href="/my-bookings">My bookings</a></div>
+  </form>
+</div>
 {% endblock %}

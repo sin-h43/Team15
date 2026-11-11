@@ -28,8 +28,8 @@ def seed():
     method = current_app.config.get("PASSWORD_HASH_METHOD", "pbkdf2:sha256")
     for username, password, role in USERS:
         db.execute(
-            "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)",
-            (username, generate_password_hash(password, method=method), role),
+            "INSERT INTO users (username, password_hash, role, email) VALUES (?, ?, ?, ?)",
+            (username, generate_password_hash(password, method=method), role, username + "@crb.example"),
         )
     for name, location, capacity, equipment in ROOMS:
         db.execute(

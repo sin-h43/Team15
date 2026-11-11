@@ -21,7 +21,7 @@ def utilisation(db, start_date, end_date):
     upper = (last + timedelta(days=1)).strftime("%Y-%m-%d") + " 00:00"
     rows = db.execute(
         "SELECT r.id, r.name, r.location, COUNT(b.id) AS bookings, "
-        "COALESCE(SUM((julianday(b.end_time) - julianday(b.start_time)) * 24), 0) AS hours "
+        "COALESCE(SUM(" + db.hours_between("b.end_time", "b.start_time") + "), 0) AS hours "
         "FROM rooms r LEFT JOIN bookings b "
         "ON b.room_id = r.id AND b.status = 'confirmed' AND b.start_time >= ? AND b.start_time < ? "
         "GROUP BY r.id ORDER BY r.location, r.name",
@@ -29,6 +29,6 @@ def utilisation(db, start_date, end_date):
     ).fetchall()
     return [
         {"room": row["name"], "location": row["location"],
-         "bookings": row["bookings"], "hours": round(row["hours"], 1)}
+         "bookings": row["bookings"], "hours": round(float(row["hours"]), 1)}
         for row in rows
     ]

@@ -1,5 +1,7 @@
 {% if can_manage and booking["status"] in ("held", "confirmed") %}
-<form method="post" action="/bookings/{{ booking['id'] }}/cancel">
-  <button type="submit">Cancel booking</button>
+<form method="post" action="/bookings/{{ booking['id'] }}/cancel" onsubmit="return confirm('Cancel this booking?');">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="danger">Cancel booking</button>
 </form>
+<br>
 {% endif %}

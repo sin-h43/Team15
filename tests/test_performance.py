@@ -1,5 +1,7 @@
 import time
 
+import pytest
+
 from crb.db import get_db
 from crb.search import find_rooms
 
@@ -36,6 +38,8 @@ def test_search_stays_under_two_seconds_with_a_thousand_bookings(app):
 
 def test_availability_query_uses_the_room_and_time_index(app):
     with app.app_context():
+        if get_db().postgres:
+            pytest.skip("EXPLAIN QUERY PLAN is SQLite-only; Postgres plans depend on table size")
         plan = get_db().execute(
             "EXPLAIN QUERY PLAN SELECT 1 FROM bookings WHERE room_id = ? AND start_time < ? AND end_time > ?",
             (1, END, START),
@@ -45,6 +49,8 @@ def test_availability_query_uses_the_room_and_time_index(app):
 
 def test_maintenance_query_uses_its_index(app):
     with app.app_context():
+        if get_db().postgres:
+            pytest.skip("EXPLAIN QUERY PLAN is SQLite-only; Postgres plans depend on table size")
         plan = get_db().execute(
             "EXPLAIN QUERY PLAN SELECT 1 FROM maintenance_blocks WHERE room_id = ? AND start_time < ? AND end_time > ?",
             (1, END, START),

@@ -1,49 +1,33 @@
-
 {% extends "base.html" %}
 {% block title %}Booking {{ code }}{% endblock %}
 {% block content %}
 <h1>Booking {{ code }}</h1>
+<p class="lead"><span class="badge badge-{{ booking['status'] }}">{{ booking["status"] }}</span></p>
 
-<table border="1" cellpadding="4">
-  <tr>
-    <th>Status</th>
-    <td>{{ booking["status"] }}</td>
-  </tr>
-  <tr>
-    <th>Room</th>
-    <td>{{ room["name"] }} ({{ room["location"] }})</td>
-  </tr>
-  <tr>
-    <th>From</th>
-    <td>{{ booking["start_time"] }}</td>
-  </tr>
-  <tr>
-    <th>To</th>
-    <td>{{ booking["end_time"] }}</td>
-  </tr>
-  <tr>
-    <th>Booked by</th>
-    <td>{{ owner }}</td>
-  </tr>
-</table>
+<div class="card">
+  <dl class="details">
+    <dt>Room</dt><dd>{{ room["name"] }} ({{ room["location"] }})</dd>
+    <dt>From</dt><dd>{{ booking["start_time"] }}</dd>
+    <dt>To</dt><dd>{{ booking["end_time"] }}</dd>
+    <dt>Booked by</dt><dd>{{ owner }}</dd>
+  </dl>
+</div>
 
 <h2>Actions</h2>
+<div class="card">
+  {% if can_manage and booking["status"] == "confirmed" %}
+  <p><a href="/bookings/{{ booking['id'] }}/edit">Edit this occurrence</a></p>
+  {% endif %}
 
-{% if can_manage and booking["status"] == "confirmed" %}
-<p>
-  <a href="/bookings/{{ booking['id'] }}/edit">
-    Edit this occurrence
-  </a>
-</p>
-{% endif %}
+  {# Each feature adds its own *_part.html file; a missing file is simply skipped. #}
+  {% for part in ["confirm_part.html", "attendees_part.html", "reschedule_part.html", "cancel_part.html", "series_part.html"] %}
+    {% include part ignore missing %}
+  {% endfor %}
 
-{# Each feature adds its own *_part.html file; a missing file is simply skipped. #}
-{% for part in ["confirm_part.html", "attendees_part.html", "reschedule_part.html", "cancel_part.html", "series_part.html"] %}
-  {% include part ignore missing %}
-{% endfor %}
-
-<p>
-  <a href="/my-bookings">My bookings</a> |
-  <a href="/rooms/search">Search rooms</a>
-</p>
+  <p class="actions">
+    <a href="/my-bookings">My bookings</a>
+    <a href="/rooms/search">Search rooms</a>
+  </p>
+</div>
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='live.js') }}"></script>{% endblock %}

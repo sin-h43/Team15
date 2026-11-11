@@ -2,52 +2,62 @@
 {% block title %}Search rooms{% endblock %}
 {% block content %}
 <h1>Search rooms</h1>
-<form method="get" action="/rooms/search">
-  <p>
-    <label>Location
-      <select name="location">
-        <option value="">Any</option>
-        {% for place in locations %}
-        <option value="{{ place }}" {% if args.get("location") == place %}selected{% endif %}>{{ place }}</option>
+<p class="lead">Choose when you need a room and filter by place, size and equipment.</p>
+<div class="card">
+  <form method="get" action="/rooms/search">
+    <div class="row">
+      <label class="field">Location
+        <select name="location">
+          <option value="">Any</option>
+          {% for place in locations %}
+          <option value="{{ place }}" {% if args.get("location") == place %}selected{% endif %}>{{ place }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">Date <input type="date" name="date" value="{{ args.get('date', '') }}" required></label>
+      <label class="field">Start time <input type="time" name="start" value="{{ args.get('start', '') }}" required></label>
+      <label class="field">End time <input type="time" name="end" value="{{ args.get('end', '') }}" required></label>
+      <label class="field">Minimum capacity <input type="number" name="capacity" min="1" value="{{ args.get('capacity', '1') }}"></label>
+    </div>
+    <div class="field">Equipment
+      <div class="check-group">
+        {% for item in all_equipment %}
+        <label><input type="checkbox" name="equipment" value="{{ item }}" {% if item in args.getlist("equipment") %}checked{% endif %}> {{ item|replace("_", " ") }}</label>
         {% endfor %}
-      </select>
-    </label>
-  </p>
-  <p><label>Date <input type="date" name="date" value="{{ args.get('date', '') }}" required></label></p>
-  <p>
-    <label>Start time <input type="time" name="start" value="{{ args.get('start', '') }}" required></label>
-    <label>End time <input type="time" name="end" value="{{ args.get('end', '') }}" required></label>
-  </p>
-  <p><label>Minimum capacity <input type="number" name="capacity" min="1" value="{{ args.get('capacity', '1') }}"></label></p>
-  <p>
-    Equipment:
-    {% for item in all_equipment %}
-    <label><input type="checkbox" name="equipment" value="{{ item }}" {% if item in args.getlist("equipment") %}checked{% endif %}> {{ item }}</label>
-    {% endfor %}
-  </p>
-  <p><button type="submit">Search</button></p>
-</form>
+      </div>
+    </div>
+    <button type="submit">Search</button>
+  </form>
+</div>
 
 {% if error %}
-<p><strong>{{ error }}</strong></p>
+<div class="alert error" role="alert">{{ error }}</div>
 {% endif %}
 
 {% if searched and not error %}
+<p class="lead" id="live-status">Live - updates every few seconds</p>
+<div id="live-results" data-query="{{ request.query_string.decode() }}">
   {% if rooms %}
-  <table border="1" cellpadding="4">
-    <tr><th>Room</th><th>Location</th><th>Capacity</th><th>Equipment</th><th>Book</th></tr>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Room</th><th>Location</th><th>Capacity</th><th>Equipment</th><th>Book</th></tr></thead>
+    <tbody>
     {% for room in rooms %}
     <tr>
       <td>{{ room["name"] }}</td>
       <td>{{ room["location"] }}</td>
       <td>{{ room["capacity"] }}</td>
-      <td>{{ room["equipment"] or "none" }}</td>
-      <td><a href="/rooms/{{ room['id'] }}/book?date={{ args.get('date', '') }}&start={{ args.get('start', '') }}&end={{ args.get('end', '') }}">Book</a></td>
+      <td>{% for item in room["equipment"].split(",") if item %}<span class="tag">{{ item|replace("_", " ") }}</span>{% else %}none{% endfor %}</td>
+      <td><a class="button small" href="/rooms/{{ room['id'] }}/book?date={{ args.get('date', '') }}&start={{ args.get('start', '') }}&end={{ args.get('end', '') }}">Book</a></td>
     </tr>
     {% endfor %}
+    </tbody>
   </table>
+  </div>
   {% else %}
-  <p>No rooms are available for those filters.</p>
+  <div class="card empty">No rooms are available for those filters.</div>
   {% endif %}
+</div>
 {% endif %}
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='live.js') }}"></script>{% endblock %}

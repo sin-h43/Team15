@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS rate_limit;
+DROP TABLE IF EXISTS auth_tokens;
 DROP TABLE IF EXISTS outbox;
 DROP TABLE IF EXISTS attendees;
 DROP TABLE IF EXISTS audit_log;
@@ -12,7 +14,19 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL CHECK (role IN ('employee', 'admin', 'auditor')),
     failed_attempts INTEGER NOT NULL DEFAULT 0,
-    locked_until TEXT
+    locked_until TEXT,
+    email TEXT UNIQUE,
+    -- 1 for seeded and admin-created accounts; self-signup sets 0 until the emailed link is used
+    email_verified INTEGER NOT NULL DEFAULT 1
+);
+
+-- One-time links sent by email (kind: 'verify' or 'reset'). Only a hash of the token is stored.
+CREATE TABLE auth_tokens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users (id),
+    kind TEXT NOT NULL CHECK (kind IN ('verify', 'reset')),
+    token_hash TEXT NOT NULL UNIQUE,
+    expires_at TEXT NOT NULL
 );
 
 CREATE TABLE rooms (
@@ -70,7 +84,16 @@ CREATE TABLE outbox (
     to_username TEXT NOT NULL,
     subject TEXT NOT NULL,
     body TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    -- stored: kept here only; sent: delivered by the mail service; failed: the mail service refused it
+    status TEXT NOT NULL DEFAULT 'stored' CHECK (status IN ('stored', 'sent', 'failed'))
+);
+
+CREATE TABLE rate_limit (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bucket TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE INDEX idx_rate_limit_bucket ON rate_limit (bucket, created_at);
 CREATE INDEX idx_bookings_room_time ON bookings (room_id, start_time, end_time);
 CREATE INDEX idx_blocks_room_time ON maintenance_blocks (room_id, start_time, end_time);

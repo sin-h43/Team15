@@ -24,7 +24,7 @@ def test_init_db_command_creates_demo_data(tmp_path):
             "PASSWORD_HASH_METHOD": "pbkdf2:sha256:1000",  # fast hashing, tests only
         }
     )
-    result = app.test_cli_runner().invoke(args=["init-db"])
+    result = app.test_cli_runner().invoke(args=["init-db", "--yes"])
     assert "Database ready" in result.output
     with app.app_context():
         count = get_db().execute("SELECT COUNT(*) FROM users").fetchone()[0]

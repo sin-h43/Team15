@@ -1,29 +1,22 @@
-
 {% extends "base.html" %}
-
+{% block title %}{{ "Edit Room" if room else "Add Room" }}{% endblock %}
 {% block content %}
-<h1>{{ "Edit Room" if room else "Add Room" }}</h1>
-
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% for category, message in messages %}
-    <p class="{{ category }}">{{ message }}</p>
-  {% endfor %}
-{% endwith %}
-
-<form method="post">
-  <p><label>Room name
-    <input id="name" name="name" required value="{{ room.name if room else '' }}"></label></p>
-
-  <p><label>Location
-    <input id="location" name="location" required value="{{ room.location if room else '' }}"></label></p>
-
-  <p><label>Capacity
-    <input id="capacity" name="capacity" type="number" min="1" required value="{{ room.capacity if room else '' }}"></label></p>
-
-  <p><label>Equipment
-    <input id="equipment" name="equipment" value="{{ room.equipment if room else '' }}"></label></p>
-
-  <button type="submit">Save Room</button>
-  <a href="{{ url_for('admin.rooms') }}">Cancel</a>
-</form>
+{% set have = room.equipment.split(",") if room else [] %}
+<div class="card medium">
+  <h1>{{ "Edit Room" if room else "Add Room" }}</h1>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="field">Room name <input id="name" name="name" required value="{{ room.name if room else '' }}"></label>
+    <label class="field">Location <input id="location" name="location" required value="{{ room.location if room else '' }}"></label>
+    <label class="field">Capacity <input id="capacity" name="capacity" type="number" min="1" required value="{{ room.capacity if room else '' }}"></label>
+    <div class="field">Equipment
+      <div class="check-group">
+        {% for item in ["projector", "video_conf", "whiteboard"] %}
+        <label><input type="checkbox" name="equipment" value="{{ item }}" {% if item in have %}checked{% endif %}> {{ item|replace("_", " ") }}</label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="actions"><button type="submit">Save Room</button> <a href="{{ url_for('admin.rooms') }}">Cancel</a></div>
+  </form>
+</div>
 {% endblock %}
