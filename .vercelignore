@@ -1,0 +1,10 @@
+tests/
+docs/
+*.docx
+*.mp4
+venv/
+.venv/
+crb.db
+.claude/
+.pytest_cache/
+__pycache__/

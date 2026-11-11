@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash
 
 from crb.db import get_db
 from crb.lockout import reset_failures
+from crb.mailer import mail_enabled
 from crb.notifications import send_email
 from crb.ratelimit import allow
 from crb.tokens import find_token_user, issue_token, use_token
@@ -30,8 +31,8 @@ def mail_link(db, user, kind, route, subject, intro):
     token = issue_token(db, user["id"], kind)
     link = url_for(route, token=token, _external=True)
     send_email(db, user["username"], subject, intro + "\n\n" + link + "\n\nIf this was not you, ignore this email.")
-    current_app.logger.info("%s link for %s: %s", kind, user["username"], link)
-    if not current_app.config.get("TESTING"):
+    # Links are printed for local use only; with real email on they must never reach the logs.
+    if not current_app.config.get("TESTING") and not mail_enabled():
         print(kind + " link for " + user["username"] + ": " + link, flush=True)
     return link
 
