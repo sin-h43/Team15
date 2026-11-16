@@ -26,6 +26,7 @@ Vercel looks for), `public/static/` (served by Vercel's CDN), `requirements.txt`
    | `RESEND_API_KEY` | key from resend.com |
    | `CRB_MAIL_FROM` | `Conference Rooms <rooms@your-verified-domain>` |
    | `CRON_SECRET` | a long random string |
+   | `CRB_RECURRING_HORIZON_DAYS` | optional; how many days ahead a recurring series may run (default 90) |
    | `CRB_TIMEZONE` | your local timezone, e.g. `Asia/Kolkata`. Vercel runs on UTC; without this, "in the past" checks and reminders are off by hours |
 
    The app refuses to start on Vercel without `DATABASE_URL`, and over HTTPS without a real `CRB_SECRET_KEY`.

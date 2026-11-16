@@ -129,3 +129,40 @@ dl.details dd { margin: 0; font-weight: 500; }
   dl.details { grid-template-columns: 1fr; gap: 2px 0; }
   dl.details dd { margin-bottom: 10px; }
 }
+
+/* ---------- High-contrast mode (CRB-NF-005): toggled by the header button ---------- */
+.contrast-toggle { font-size: .85rem; }
+html[data-contrast="high"] {
+  --navy: #000; --navy-dark: #000; --accent: #ffe600;
+  --bg: #000; --card: #000; --text: #fff; --muted: #fff; --line: #fff;
+  --ok-bg: #000; --ok: #7dff7d; --err-bg: #000; --err: #ff9b9b; --warn-bg: #000; --warn: #ffe600;
+}
+html[data-contrast="high"] body { background: #000; color: #fff; }
+html[data-contrast="high"] a { color: #ffe600; text-decoration: underline; }
+html[data-contrast="high"] h1, html[data-contrast="high"] h2,
+html[data-contrast="high"] th, html[data-contrast="high"] .tile strong,
+html[data-contrast="high"] dl.details dd { color: #fff; }
+html[data-contrast="high"] .site-header { border-bottom: 2px solid #fff; }
+html[data-contrast="high"] .site-header nav a { color: #fff; text-decoration: none; }
+html[data-contrast="high"] .site-header nav a:hover,
+html[data-contrast="high"] .site-header nav a.active { background: #fff; color: #000; }
+html[data-contrast="high"] th { background: #000; border-bottom: 2px solid #fff; }
+html[data-contrast="high"] tbody tr:hover td { background: #1a1a1a; }
+html[data-contrast="high"] .card, html[data-contrast="high"] .table-wrap,
+html[data-contrast="high"] .tile { border: 2px solid #fff; }
+html[data-contrast="high"] input, html[data-contrast="high"] select {
+  background: #000; color: #fff; border: 2px solid #fff;
+}
+html[data-contrast="high"] button, html[data-contrast="high"] .button {
+  background: #ffe600; color: #000; border: 2px solid #ffe600; text-decoration: none;
+}
+html[data-contrast="high"] button:hover, html[data-contrast="high"] .button:hover { background: #fff; color: #000; border-color: #fff; }
+html[data-contrast="high"] button.secondary, html[data-contrast="high"] .button.secondary,
+html[data-contrast="high"] .site-header button { background: #000; color: #fff; border: 2px solid #fff; }
+html[data-contrast="high"] button.danger { background: #000; color: #ff9b9b; border: 2px solid #ff9b9b; }
+html[data-contrast="high"] .alert, html[data-contrast="high"] .badge, html[data-contrast="high"] .tag {
+  border: 1px solid currentColor; background: #000;
+}
+html[data-contrast="high"] .tag, html[data-contrast="high"] .user-box .role { color: #fff; }
+html[data-contrast="high"] .badge-expired { color: #fff; }
+html[data-contrast="high"] td pre { color: #fff; }

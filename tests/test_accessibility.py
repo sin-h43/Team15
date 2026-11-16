@@ -80,3 +80,15 @@ def test_tables_have_header_cells(app):
         page = admin.get(url).data
         if b"<table" in page:
             assert b"<th>" in page, url
+
+def test_every_page_offers_a_high_contrast_toggle(client):
+    page = client.get("/login").get_data(as_text=True)
+    assert 'id="contrast-toggle"' in page and 'aria-pressed="false"' in page
+    assert "contrast.js" in page and 'data-contrast' in page
+
+
+def test_high_contrast_styles_and_script_are_served(client):
+    css = client.get("/static/style.css").get_data(as_text=True)
+    assert 'html[data-contrast="high"]' in css
+    script = client.get("/static/contrast.js")
+    assert script.status_code == 200 and b"crb-contrast" in script.data

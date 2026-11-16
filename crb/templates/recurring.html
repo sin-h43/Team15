@@ -5,7 +5,7 @@
 {% block content %}
 <div class="card medium">
   <h1>Create Recurring Booking</h1>
-  <p class="lead">Occurrences are created for the next 90 days. Dates that clash are skipped and listed.</p>
+  <p class="lead">Occurrences repeat until the end date you choose, at most {{ horizon }} days ahead. Leave the end date empty to use the full {{ horizon }} days. Dates that clash are skipped and listed.</p>
 
   {% if error %}<div class="alert error" role="alert"><strong>{{ error }}</strong></div>{% endif %}
 
@@ -31,6 +31,9 @@
         <option value="daily" {% if values.get('frequency') == 'daily' %}selected{% endif %}>Daily</option>
         <option value="weekly" {% if values.get('frequency') == 'weekly' %}selected{% endif %}>Weekly</option>
       </select>
+    </label>
+    <label class="field">Repeat until (optional)
+      <input type="date" name="until" value="{{ values.get('until', '') }}">
     </label>
     <div class="actions"><button type="submit">Create recurring bookings</button> <a href="/my-bookings">My bookings</a></div>
   </form>
