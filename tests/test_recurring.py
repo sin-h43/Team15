@@ -97,3 +97,62 @@ def test_start_beyond_90_days_is_rejected(app):
                 "2030-04-10 10:00", "2030-04-10 11:00",
                 "daily", now=NOW,
             )
+
+
+def test_series_stops_at_the_chosen_end_date(app):
+    with app.app_context():
+        result = create_recurring_bookings(
+            get_db(), 1, 1, "2030-01-15 10:00", "2030-01-15 11:00", "daily", now=NOW, until="2030-01-19")
+    assert len(result["booking_ids"]) == 5          # 15, 16, 17, 18, 19 January
+
+
+def test_weekly_series_with_end_date(app):
+    with app.app_context():
+        result = create_recurring_bookings(
+            get_db(), 1, 1, "2030-01-15 10:00", "2030-01-15 11:00", "weekly", now=NOW, until="2030-02-05")
+    assert len(result["booking_ids"]) == 4          # 15, 22, 29 January and 5 February
+
+
+def test_end_date_before_the_first_date_is_refused(app):
+    with app.app_context():
+        with pytest.raises(BookingError, match="before the first date"):
+            create_recurring_bookings(
+                get_db(), 1, 1, "2030-01-15 10:00", "2030-01-15 11:00", "daily", now=NOW, until="2030-01-10")
+
+
+def test_end_date_beyond_the_horizon_is_refused(app):
+    with app.app_context():
+        with pytest.raises(BookingError, match="within the next 90 days"):
+            create_recurring_bookings(
+                get_db(), 1, 1, "2030-01-15 10:00", "2030-01-15 11:00", "daily", now=NOW, until="2030-06-01")
+
+
+def test_horizon_is_configurable(app):
+    app.config["RECURRING_HORIZON_DAYS"] = 30
+    with app.app_context():
+        result = create_recurring_bookings(
+            get_db(), 1, 1, "2030-01-15 10:00", "2030-01-15 11:00", "daily", now=NOW)
+        with pytest.raises(BookingError, match="within the next 30 days"):
+            create_recurring_bookings(
+                get_db(), 1, 2, "2030-01-15 10:00", "2030-01-15 11:00", "daily", now=NOW, until="2030-03-01")
+    # NOW is 1 January 09:00; 30 days ahead is 31 January 09:00, so the last 10:00 slot is 30 January
+    assert len(result["booking_ids"]) == 16         # 15..30 January
+
+
+def test_recurring_page_has_the_end_date_field_and_uses_it(app):
+    from datetime import timedelta
+
+    from crb.clock import local_now
+    from tests.helpers import signed_in
+
+    first = (local_now() + timedelta(days=2)).date()
+    client = signed_in(app, "employee1", "emp123")
+    page = client.get("/recurring").get_data(as_text=True)
+    assert 'name="until"' in page and "90 days" in page
+    response = client.post("/recurring", data={
+        "room_id": "1", "date": first.isoformat(), "start": "09:00", "end": "10:00",
+        "frequency": "daily", "until": (first + timedelta(days=2)).isoformat()})
+    assert response.status_code == 200
+    with app.app_context():
+        count = get_db().execute("SELECT COUNT(*) FROM bookings WHERE series_id IS NOT NULL").fetchone()[0]
+    assert count == 3

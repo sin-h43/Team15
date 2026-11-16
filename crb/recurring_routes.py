@@ -3,7 +3,7 @@ from flask import Blueprint, abort, redirect, render_template, request, session
 from crb.booking_service import BookingError
 from crb.db import get_db
 from crb.guards import login_required
-from crb.recurring import create_recurring_bookings
+from crb.recurring import create_recurring_bookings, horizon_days
 from crb.validators import ValidationError, parse_int, parse_range
 
 bp = Blueprint("recurring", __name__)
@@ -35,6 +35,7 @@ def recurring_home():
                 start,
                 end,
                 frequency,
+                until=(request.form.get("until") or "").strip() or None,
             )
 
             bookings = db.execute(
@@ -56,6 +57,7 @@ def recurring_home():
                 rooms=rooms,
                 error=str(problem),
                 values=request.form,
+                horizon=horizon_days(),
             ), 400
 
     return render_template(
@@ -63,6 +65,7 @@ def recurring_home():
         rooms=rooms,
         error=None,
         values={},
+        horizon=horizon_days(),
     )
 
 

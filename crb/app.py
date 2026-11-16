@@ -25,6 +25,7 @@ def create_app(test_config=None):
     app.config["DATABASE"] = os.path.join(os.path.dirname(app.root_path), "crb.db")
     testing = bool(test_config and test_config.get("TESTING"))
     app.config["DATABASE_URL"] = database_url_from_env(testing)
+    app.config["RECURRING_HORIZON_DAYS"] = int(os.environ.get("CRB_RECURRING_HORIZON_DAYS") or 90)
     # Real email and the cron endpoint are configured from the environment (never in tests).
     if not testing:
         app.config["RESEND_API_KEY"] = os.environ.get("RESEND_API_KEY") or None

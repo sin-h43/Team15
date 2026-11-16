@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Home{% endblock %} - Conference Room Booking</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {# Apply a saved high-contrast choice before the page paints (CRB-NF-005). #}
+  <script>try { if (localStorage.getItem("crb-contrast") === "high") document.documentElement.setAttribute("data-contrast", "high"); } catch (e) {}</script>
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to main content</a>
@@ -32,6 +34,7 @@
       {% for part in ["nav_bookings.html", "nav_recurring.html", "nav_reports.html", "nav_outbox.html"] %}{% include part ignore missing %}{% endfor %}
     </nav>
     <div class="user-box">
+      <button type="button" id="contrast-toggle" class="contrast-toggle" aria-pressed="false" title="Switch high-contrast mode on or off">High contrast</button>
       {% if session.get("user_id") %}
       <span>{{ session["username"] }} <span class="role">{{ session["role"] }}</span></span>
       <form method="post" action="/logout"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit">Log out</button></form>
@@ -50,6 +53,7 @@
   {% block content %}{% endblock %}
 </main>
 <footer class="site-footer">Conference Room Booking &middot; Team 15</footer>
+<script src="{{ url_for('static', filename='contrast.js') }}"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>
