@@ -14,16 +14,11 @@ from crb.mailer import mail_enabled
 from crb.notifications import send_email
 from crb.ratelimit import allow
 from crb.tokens import find_token_user, issue_token, use_token
-from crb.validators import PASSWORD_RULES, ValidationError, parse_email, parse_password, parse_username
+from crb.validators import ValidationError, parse_email, parse_password, parse_username
 
 bp = Blueprint("accounts", __name__, cli_group=None)
 
 GENERIC_MAIL_NOTICE = "If that address can be used, an email with a link is on its way."
-
-
-@bp.app_context_processor
-def inject_password_rules():
-    return {"password_rules": PASSWORD_RULES}
 
 
 def password_hash(password):
@@ -74,7 +69,7 @@ def signup():
     try:
         username = parse_username(request.form.get("username"))
         email = parse_email(request.form.get("email"))
-        password = parse_password(request.form.get("password"), username, email)
+        password = parse_password(request.form.get("password"))
         if password != request.form.get("confirm", ""):
             raise ValidationError("The two passwords do not match")
         taken = db.execute("SELECT 1 FROM users WHERE LOWER(username) = ?", (username.lower(),)).fetchone()
@@ -159,10 +154,8 @@ def reset(token):
                        400, "/forgot", "Request a new link")
     if request.method == "GET":
         return render_template("reset.html", error=None)
-    owner = db.execute("SELECT username, email FROM users WHERE id = ?",
-                       (find_token_user(db, token, "reset"),)).fetchone()
     try:
-        password = parse_password(request.form.get("password"), owner["username"], owner["email"])
+        password = parse_password(request.form.get("password"))
         if password != request.form.get("confirm", ""):
             raise ValidationError("The two passwords do not match")
     except ValidationError as problem:
@@ -186,7 +179,7 @@ def create_user_command(username, email, role, password):
     """Create an already-confirmed account (use it to create the first admin)."""
     db = get_db()
     try:
-        username, email, password = parse_username(username), parse_email(email), parse_password(password, username, email)
+        username, email, password = parse_username(username), parse_email(email), parse_password(password)
     except ValidationError as problem:
         raise click.ClickException(str(problem))
     if db.execute("SELECT 1 FROM users WHERE LOWER(username) = ? OR email = ?",

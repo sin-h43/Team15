@@ -10,7 +10,7 @@
     <label class="field">Username <span class="hint">3-30 letters, digits, dots, dashes or underscores</span>
       <input name="username" autocomplete="username" required value="{{ values.get('username', '') }}"></label>
     <label class="field">Email <input name="email" type="email" autocomplete="email" required value="{{ values.get('email', '') }}"></label>
-    <label class="field">Password <span class="hint">{{ password_rules }}</span>
+    <label class="field">Password <span class="hint">At least 8 characters</span>
       <input name="password" type="password" autocomplete="new-password" required></label>
     <label class="field">Confirm password <input name="confirm" type="password" autocomplete="new-password" required></label>
     <div class="actions"><button type="submit">Sign up</button> <a href="/login">I already have an account</a></div>
