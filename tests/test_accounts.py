@@ -142,3 +142,25 @@ def test_create_user_command_makes_a_confirmed_admin(app):
     assert result.exit_code == 0, result.output
     user = query(app, "SELECT role, email_verified FROM users WHERE username = 'boss'")[0]
     assert user["role"] == "admin" and user["email_verified"]
+
+
+def test_admin_can_confirm_an_account_by_hand(app):
+    sign_up(app)
+    pending = query(app, "SELECT id FROM users WHERE username = 'priya'")[0]["id"]
+    client = app.test_client()
+    assert client.post("/login", data={"username": "priya", "password": "longenough1"}).status_code == 403
+    admin = signed_in(app, "admin1", "admin123")
+    page = admin.get("/admin/users").get_data(as_text=True)
+    assert "Confirm now" in page
+    assert admin.post("/admin/users/%d/confirm" % pending).status_code == 302
+    assert client.post("/login", data={"username": "priya", "password": "longenough1"}).status_code == 302
+    log = query(app, "SELECT actor, action FROM audit_log ORDER BY id DESC")[0]
+    assert (log["actor"], log["action"]) == ("admin1", "USER_EMAIL_CONFIRMED")
+    assert query(app, "SELECT COUNT(*) AS n FROM auth_tokens WHERE user_id = %d" % pending)[0]["n"] == 0
+
+
+def test_only_admins_can_confirm_accounts(app):
+    sign_up(app)
+    pending = query(app, "SELECT id FROM users WHERE username = 'priya'")[0]["id"]
+    assert signed_in(app, "employee1", "emp123").post("/admin/users/%d/confirm" % pending).status_code == 403
+    assert not query(app, "SELECT email_verified FROM users WHERE id = %d" % pending)[0]["email_verified"]
