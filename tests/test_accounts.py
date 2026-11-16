@@ -4,7 +4,7 @@ import re
 from crb.db import get_db
 from tests.helpers import signed_in
 
-SIGNUP = {"username": "priya", "email": "Priya@Example.com", "password": "longenough1", "confirm": "longenough1"}
+SIGNUP = {"username": "priya", "email": "Priya@Example.com", "password": "Longenough1!", "confirm": "Longenough1!"}
 
 
 def query(app, sql, params=()):
@@ -37,10 +37,10 @@ def test_signup_creates_unconfirmed_employee_and_sends_link(app):
 
 def test_cannot_log_in_until_email_is_confirmed(app):
     client, _ = sign_up(app)
-    response = client.post("/login", data={"username": "priya", "password": "longenough1"})
+    response = client.post("/login", data={"username": "priya", "password": "Longenough1!"})
     assert response.status_code == 403 and b"confirm your email" in response.data
     assert client.get(last_link(app, "/verify/")).status_code == 200
-    ok = client.post("/login", data={"username": "priya@example.com", "password": "longenough1"})
+    ok = client.post("/login", data={"username": "priya@example.com", "password": "Longenough1!"})
     assert ok.status_code == 302
 
 
@@ -71,12 +71,12 @@ def test_password_reset_flow(app):
     client.post("/forgot", data={"email": "employee1@crb.example"})
     link = last_link(app, "/reset/")
     assert client.get(link).status_code == 200
-    bad = client.post(link, data={"password": "brandnew123", "confirm": "nope"})
+    bad = client.post(link, data={"password": "Brandnew#123", "confirm": "nope"})
     assert bad.status_code == 400
-    assert client.post(link, data={"password": "brandnew123", "confirm": "brandnew123"}).status_code == 200
-    assert client.post(link, data={"password": "again12345", "confirm": "again12345"}).status_code == 400
+    assert client.post(link, data={"password": "Brandnew#123", "confirm": "Brandnew#123"}).status_code == 200
+    assert client.post(link, data={"password": "Again#12345", "confirm": "Again#12345"}).status_code == 400
     assert client.post("/login", data={"username": "employee1", "password": "emp123"}).status_code == 401
-    assert client.post("/login", data={"username": "employee1", "password": "brandnew123"}).status_code == 302
+    assert client.post("/login", data={"username": "employee1", "password": "Brandnew#123"}).status_code == 302
 
 
 def test_forgot_password_does_not_reveal_unknown_addresses(app):
@@ -137,7 +137,7 @@ def test_attendee_can_be_invited_by_email_but_not_before_confirmation(app):
 def test_create_user_command_makes_a_confirmed_admin(app):
     result = app.test_cli_runner().invoke(
         args=["create-user", "--username", "boss", "--email", "boss@example.com", "--role", "admin"],
-        input="strongpass1\nstrongpass1\n",
+        input="Strongpass#1\nStrongpass#1\n",
     )
     assert result.exit_code == 0, result.output
     user = query(app, "SELECT role, email_verified FROM users WHERE username = 'boss'")[0]
@@ -148,12 +148,12 @@ def test_admin_can_confirm_an_account_by_hand(app):
     sign_up(app)
     pending = query(app, "SELECT id FROM users WHERE username = 'priya'")[0]["id"]
     client = app.test_client()
-    assert client.post("/login", data={"username": "priya", "password": "longenough1"}).status_code == 403
+    assert client.post("/login", data={"username": "priya", "password": "Longenough1!"}).status_code == 403
     admin = signed_in(app, "admin1", "admin123")
     page = admin.get("/admin/users").get_data(as_text=True)
     assert "Confirm now" in page
     assert admin.post("/admin/users/%d/confirm" % pending).status_code == 302
-    assert client.post("/login", data={"username": "priya", "password": "longenough1"}).status_code == 302
+    assert client.post("/login", data={"username": "priya", "password": "Longenough1!"}).status_code == 302
     log = query(app, "SELECT actor, action FROM audit_log ORDER BY id DESC")[0]
     assert (log["actor"], log["action"]) == ("admin1", "USER_EMAIL_CONFIRMED")
     assert query(app, "SELECT COUNT(*) AS n FROM auth_tokens WHERE user_id = %d" % pending)[0]["n"] == 0

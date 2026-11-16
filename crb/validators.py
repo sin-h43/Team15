@@ -49,6 +49,7 @@ def parse_equipment(values):
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]{3,30}$")
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD_LENGTH = 8
+REPEATED_CHARACTER = re.compile(r"(.)\1\1")  # the same character three times in a row
 
 
 def parse_username(value):
@@ -65,10 +66,42 @@ def parse_email(value):
     return text
 
 
-def parse_password(value):
+COMMON_PASSWORDS = {
+    "password", "password1", "passw0rd", "qwerty", "qwerty123", "qwertyuiop", "letmein", "welcome",
+    "welcome1", "admin", "admin123", "administrator", "iloveyou", "monkey", "dragon", "football",
+    "baseball", "abc123", "abcd1234", "123456", "1234567", "12345678", "123456789", "1234567890",
+    "111111", "000000", "changeme", "default", "master", "login", "princess", "sunshine", "trustno1",
+    "employee1", "emp123", "aud123",
+}
+
+PASSWORD_RULES = (
+    "At least 8 characters, with an uppercase letter, a lowercase letter, a digit and a symbol; "
+    "no character repeated 3 times in a row; not a common password."
+)
+
+
+def parse_password(value, username="", email=""):
+    """Check a new password and return it. Raises ValidationError with the first rule it breaks."""
     text = value or ""
     if len(text) < MIN_PASSWORD_LENGTH:
         raise ValidationError("Password must be at least " + str(MIN_PASSWORD_LENGTH) + " characters")
     if len(text) > 200:
         raise ValidationError("Password is too long")
+    if not any(ch.islower() for ch in text):
+        raise ValidationError("Password needs a lowercase letter")
+    if not any(ch.isupper() for ch in text):
+        raise ValidationError("Password needs an uppercase letter")
+    if not any(ch.isdigit() for ch in text):
+        raise ValidationError("Password needs a digit")
+    if all(ch.isalnum() for ch in text):
+        raise ValidationError("Password needs a symbol such as ! @ # $ % & *")
+    if REPEATED_CHARACTER.search(text):
+        raise ValidationError("Password must not repeat the same character 3 times in a row")
+    lowered = text.lower()
+    if lowered in COMMON_PASSWORDS or lowered.rstrip("0123456789!@#$%&*") in COMMON_PASSWORDS:
+        raise ValidationError("That password is too common")
+    for label, personal in (("username", username), ("email", (email or "").split("@")[0])):
+        personal = (personal or "").strip().lower()
+        if len(personal) >= 4 and personal in lowered:
+            raise ValidationError("Password must not contain your " + label)
     return text

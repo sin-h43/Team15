@@ -6,7 +6,7 @@
   {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
   <form method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <label class="field">New password <span class="hint">At least 8 characters</span>
+    <label class="field">New password <span class="hint">{{ password_rules }}</span>
       <input name="password" type="password" autocomplete="new-password" required autofocus></label>
     <label class="field">Confirm password <input name="confirm" type="password" autocomplete="new-password" required></label>
     <button type="submit">Change password</button>
