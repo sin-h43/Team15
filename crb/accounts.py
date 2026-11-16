@@ -93,7 +93,7 @@ def signup():
                       "Welcome to Conference Room Booking. Confirm your email address to activate your account:")
     # The same answer whether or not the address was already registered (no account probing).
     return message("Check your email", "We sent a confirmation link to " + email
-                   + ". Open it to activate your account.")
+                   + ". Open it to activate your account. If it does not arrive, ask an administrator to confirm your account.")
 
 
 @bp.route("/verify/<token>")
