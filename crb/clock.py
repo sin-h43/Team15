@@ -17,4 +17,7 @@ def local_now():
     try:
         return datetime.now(ZoneInfo(name)).replace(tzinfo=None)
     except ZoneInfoNotFoundError:
-        raise RuntimeError("CRB_TIMEZONE is not a valid timezone name: " + name)
+        raise RuntimeError(
+            "CRB_TIMEZONE is not a valid timezone name: " + name + ". If the name is right, this computer "
+            "has no timezone data: run  pip install -r requirements.txt  (it installs tzdata)."
+        )
