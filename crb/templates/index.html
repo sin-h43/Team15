@@ -1,22 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Conference Room Booking</h1>
 {% if session.get("user_id") %}
-<p class="lead">Welcome, {{ session["username"] }}. Use "Search rooms" to find an available room.</p>
+<section class="hero">
+  <h1>Conference Room Booking</h1>
+  <p>Welcome, {{ session["username"] }}. Use "Search rooms" to find an available room, book it in seconds and get a reminder before it starts.</p>
+  <div class="actions">
+    <a class="button" href="/rooms/search">Search rooms</a>
+    <a class="button secondary" href="/my-bookings">My bookings</a>
+  </div>
+</section>
 <div class="tiles">
   <a class="tile" href="/rooms/search"><strong>Search rooms</strong><span>Find a free room by place, time, size and equipment.</span></a>
   <a class="tile" href="/my-bookings"><strong>My bookings</strong><span>View, move or cancel your meetings.</span></a>
   <a class="tile" href="/recurring"><strong>Recurring booking</strong><span>Book a daily or weekly series.</span></a>
   {% if session.get("role") == "admin" %}
-  <a class="tile" href="/admin/rooms"><strong>Manage rooms</strong><span>Add, edit or deactivate rooms.</span></a>
-  <a class="tile" href="/admin/blocks"><strong>Maintenance blocks</strong><span>Take a room out of service.</span></a>
-  <a class="tile" href="/reports/utilisation"><strong>Utilisation report</strong><span>Bookings and hours per room.</span></a>
+  <a class="tile admin" href="/admin/rooms"><strong>Manage rooms</strong><span>Add, edit or deactivate rooms.</span></a>
+  <a class="tile admin" href="/admin/users"><strong>Users</strong><span>Roles and account confirmation.</span></a>
+  <a class="tile admin" href="/admin/blocks"><strong>Maintenance blocks</strong><span>Take a room out of service.</span></a>
+  <a class="tile admin" href="/reports/utilisation"><strong>Utilisation report</strong><span>Bookings and hours per room.</span></a>
   {% endif %}
   {% if session.get("role") in ("admin", "auditor") %}
-  <a class="tile" href="/audit"><strong>Audit log</strong><span>Review administrative actions.</span></a>
+  <a class="tile admin" href="/audit"><strong>Audit log</strong><span>Review administrative actions.</span></a>
   {% endif %}
 </div>
 {% else %}
+<section class="hero">
+  <h1>Conference Room Booking</h1>
+  <p>Find a free meeting room, book it without clashes, invite your team and get reminded before it starts.</p>
+  <div class="actions">
+    <a class="button" href="/login">Log in</a>
+    <a class="button secondary" href="/signup">Create an account</a>
+  </div>
+</section>
 <p class="lead">Please <a href="/login">log in</a> to search and book rooms.</p>
 {% endif %}
 {% endblock %}
