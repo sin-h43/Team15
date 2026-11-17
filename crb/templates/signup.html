@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Sign up{% endblock %}
 {% block content %}
-<div class="card narrow">
+<div class="auth-wrap"><div class="card narrow">
   <h1>Create an account</h1>
   <p class="lead">We will email you a link to confirm your address.</p>
   {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
@@ -15,5 +15,5 @@
     <label class="field">Confirm password <input name="confirm" type="password" autocomplete="new-password" required></label>
     <div class="actions"><button type="submit">Sign up</button> <a href="/login">I already have an account</a></div>
   </form>
-</div>
+</div></div>
 {% endblock %}

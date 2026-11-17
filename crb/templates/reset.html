@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Choose a new password{% endblock %}
 {% block content %}
-<div class="card narrow">
+<div class="auth-wrap"><div class="card narrow">
   <h1>Choose a new password</h1>
   {% if error %}<div class="alert error" role="alert">{{ error }}</div>{% endif %}
   <form method="post">
@@ -11,5 +11,5 @@
     <label class="field">Confirm password <input name="confirm" type="password" autocomplete="new-password" required></label>
     <button type="submit">Change password</button>
   </form>
-</div>
+</div></div>
 {% endblock %}
